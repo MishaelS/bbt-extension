@@ -1,7 +1,31 @@
-out
-dist
-node_modules
-.vscode-test/
+# Compiled files
+out/
+dist/
 *.vsix
-.vscode
+
+# Dependencies
+node_modules/
+
+# VS Code
+.vscode/
+.vscode-test/
+*.code-workspace
+
+# TypeScript
+*.tsbuildinfo
+
+# ESLint (if you add it)
+eslint.config.mjs
+
+# Logs and temporary files
+*.log
 .DS_Store
+Thumbs.db
+
+# Development Environment
+.env
+.env.local
+
+# Tests (if available)
+coverage/
+.nyc_output/

@@ -1,0 +1,169 @@
+/**
+ * webview/shared/logic.ts
+ * Shared client-side JS: history, mode switcher, copy, escaping.
+ *
+ * Sections:
+ *   1. History     — unified history for Number and ASCII modes
+ *   2. Mode switch — setMode(), toggles visible panels
+ *   3. Utilities   — copyVal(), escHtml()
+ */
+export function getSharedLogic(): string
+{
+    return `
+
+/*
+   1. HISTORY
+*/
+
+var _numHistory      = [];
+var _asciiHistory    = [];
+var _numPushTimer    = null;
+var _asciiPushTimer  = null;
+var _numLastPushed   = null;
+var _asciiLastPushed = null;
+var _autoSave        = false; // overridden by VS Code on load via postMessage
+
+function addToHistory(expr, result, mode)
+{
+    var list = mode === 'number' ? _numHistory : _asciiHistory;
+
+    if (list.length && list[0].expr === expr) { return; }
+    list.unshift({ expr: expr, result: result, mode: mode });
+    if (list.length > 20) { list.pop(); }
+
+    renderHistory();
+}
+
+function clearHistory()
+{
+    _numHistory      = [];
+    _asciiHistory    = [];
+    _numLastPushed   = null;
+    _asciiLastPushed = null;
+    renderHistory();
+}
+
+function renderHistory()
+{
+    var el       = document.getElementById('historyList');
+    var combined = _numHistory.slice().concat(_asciiHistory.slice());
+
+    if (!combined.length) {
+        el.innerHTML = '<div class="history-empty">No calculations yet</div>';
+        return;
+    }
+
+    window._combinedHistory = combined;
+
+    el.innerHTML = combined.map(function(h, i) {
+        var prefix        = h.mode === 'number' ? '[NUM] ' : '[ASC] ';
+        var displayResult = h.mode === 'number'
+            ? h.result
+            : '"' + (h.result.length > 30 ? h.result.slice(0, 27) + '...' : h.result) + '"';
+
+        return '<div class="history-item" onclick="loadFromHistory(' + i + ')">' +
+            '<span class="history-expr">'   + prefix + escHtml(h.expr)   + '</span>' +
+            '<span class="history-result">-> ' + escHtml(displayResult)  + '</span>' +
+        '</div>';
+    }).join('');
+}
+
+function loadFromHistory(i)
+{
+    var item = window._combinedHistory[i];
+    if (!item) { return; }
+
+    if (item.mode === 'number') {
+        setMode('number');
+        document.getElementById('numInput').value = item.expr;
+        convertNumber(false);
+    } else {
+        setMode('ascii');
+        document.getElementById('asciiInput').value = item.expr;
+        convertAscii();
+    }
+}
+
+function saveCurrentToHistory()
+{
+    if (_currentMode === 'number') {
+        var raw = document.getElementById('numInput').value.trim();
+        var dec = document.getElementById('decVal').textContent;
+        if (raw && dec !== '—') {
+            _numLastPushed = raw;
+            addToHistory(raw, dec, 'number');
+        }
+    } else {
+        var input  = document.getElementById('asciiInput').value;
+        var result = document.getElementById('asciiTextVal').textContent;
+        if (input.trim() && result !== '—') {
+            _asciiLastPushed = input;
+            addToHistory(input, result, 'ascii');
+        }
+    }
+}
+
+/*
+   2. MODE SWITCH
+*/
+
+var _currentMode = 'number';
+
+function setMode(mode)
+{
+    _currentMode = mode;
+
+    document.getElementById('modeNumber').classList.remove('active');
+    document.getElementById('modeAscii').classList.remove('active');
+    document.getElementById(mode === 'number' ? 'modeNumber' : 'modeAscii').classList.add('active');
+
+    var isNumber = mode === 'number';
+    document.getElementById('numberMode').style.display    = isNumber ? 'block' : 'none';
+    document.getElementById('asciiMode').style.display     = isNumber ? 'none'  : 'block';
+    document.getElementById('numberResults').style.display = isNumber ? 'block' : 'none';
+    document.getElementById('asciiResults').style.display  = isNumber ? 'none'  : 'block';
+
+    if (isNumber) { convertNumber(); } else { convertAscii(); }
+}
+
+/*
+   3. UTILITIES
+*/
+
+function copyVal(id, btn)
+{
+    var text = document.getElementById(id).textContent;
+    if (text === '—') { return; }
+
+    navigator.clipboard.writeText(text);
+
+    var orig = btn.textContent;
+    btn.textContent = 'ok';
+    btn.classList.add('copied');
+
+    setTimeout(function() {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+    }, 1200);
+}
+
+function escHtml(s)
+{
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+/* Boot */
+window.addEventListener('message', function(event) {
+    var msg = event.data;
+    if (msg.type === 'settings') {
+        _autoSave = !!msg.autoSave;
+    }
+});
+
+convertNumber();
+
+    `;
+}

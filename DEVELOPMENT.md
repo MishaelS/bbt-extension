@@ -4,39 +4,34 @@
 
 ```
 bbt-extension/
-├── out/
-│   ├── extension.js
-│   ├── extension.js.map
-│   ├── hover.js
-│   ├── hover.js.map
-│   └── webview/
-│       ├── index.js
-│       ├── index.js.map
-│       ├── html.js
-│       ├── html.js.map
-│       ├── styles.js
-│       ├── styles.js.map
-│       └── logic.js
-│       └── logic.js.map
 ├── src/
-│   ├── extension.ts    # Extension entry point
-│   ├── hover.ts        # Hover provider for number conversion
+│   ├── extension.ts       # Extension entry point
+│   ├── hover.ts           # Hover provider
 │   └── webview/
-│       ├── index.ts    # HTML document assembler
-│       ├── html.ts     # Static HTML markup
-│       ├── styles.ts   # CSS styles
-│       └── logic.ts    # Client-side JavaScript
+│       ├── index.ts       # HTML document assembler
+│       ├── html.ts        # Static HTML markup
+│       ├── styles.ts      # CSS styles
+│       ├── shared/
+│       │   └── logic.ts   # History, mode switch, utilities
+│       ├── number/
+│       │   └── logic.ts   # Number mode JS
+│       └── ascii/
+│           └── logic.ts   # ASCII mode JS
+├── out/                   # Compiled JavaScript
 ├── resources/
-│   └── icon.png        # Extension icon
-│   └── icon.svg        # Extension icon
-├── package.json        # Extension manifest
-├── tsconfig.json       # TypeScript configuration
+│   ├── icon.png           # Extension icon
+│   └── icon.svg           # Extension icon
+├── screenshots/
+│   ├── ascii-mode.png
+│   ├── number-mode.png
+│   └── example_usage.gif
+├── package.json           # Extension manifest
+├── tsconfig.json          # TypeScript configuration
 ├── .github/
 │   └── workflows/
-│       └── publish.yml # CI/CD pipeline
-└── README.md           # User documentation
+│       └── publish.yml    # CI/CD pipeline
+└── README.md              # User documentation
 ```
-
 
 ## Architecture
 
@@ -55,11 +50,9 @@ Registers three main components:
 
 ### Webview Components
 
-#### `html.ts`
-Pure HTML structure with no logic or styles.
+#### `html.ts` - Pure HTML structure with no logic or styles.
 
-#### `styles.ts`
-All CSS organized into logical sections:
+#### `styles.ts` - All CSS organized into logical sections:
 - Base layout & inputs
 - Operator cheatsheet
 - Result cards
@@ -68,8 +61,13 @@ All CSS organized into logical sections:
 - Endianness display
 - History panel
 
-#### `logic.ts`
-Client-side JavaScript with these modules:
+#### `shared/logic.ts` - history management, mode switching, copy utilities, HTML escaping
+
+#### `number/logic.ts` - safeEval expression evaluator, integer type grid, bit visualizer, endianness display
+
+#### `ascii/logic.ts` - hex/dec code detection, text encoding/decoding, character card rendering
+
+#### `logic.ts` - Client-side JavaScript with these modules:
 
 1. **safeEval()** - Expression evaluator
    - Converts `0x`/`0b` literals to decimal
@@ -100,23 +98,31 @@ Client-side JavaScript with these modules:
    - Orchestrates all render functions
    - Handles errors and empty input
 
-### Expression Safety
+## Expression Safety
 
 The `safeEval()` function implements multiple security layers:
 
+1. Convert hex (0xFF) and binary (0b1010) literals to decimal using parseInt
+2. Validate only allowed characters: digits, whitespace, + - * / % & | ^ ~ < > ( )
+3. Evaluate in isolated function via new Function('return (' + processed + ')')
+
 ```javascript
-// 1. Convert hex/binary literals to decimal
+// Convert hex/binary literals to decimal
 processed = processed.replace(/0x[0-9a-fA-F]+/gi, (m) => parseInt(m, 16).toString());
 processed = processed.replace(/0b[01]+/gi, (m) => parseInt(m.slice(2), 2).toString());
 
-// 2. Validate only allowed characters
+// Validate only allowed characters
 /^[\d\s\+\-\*\/\%\&\|\^\~\<\>\(\)]+$/.test(processed)
 
-// 3. Evaluate in isolated function
+// Evaluate in isolated function
 new Function('return (' + processed + ')')()
 ```
 
-## Development Commands
+## Webview Communication
+
+Settings are sent from extension to webview via postMessage on load and when configuration changes. Webview listens for messages of type `settings`.
+
+## Development Commands (build)
 ```bash
 # Install dependencies
 npm install

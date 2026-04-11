@@ -5,153 +5,119 @@
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/mishaels.byte-bit-tool)](https://marketplace.visualstudio.com/items?itemName=mishaels.byte-bit-tool)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Byte Bit Tool** is a VS Code extension for developers, reverse engineers, and security researchers. Convert numbers between decimal, hexadecimal, and binary formats with support for arithmetic and bitwise operations — directly in your editor.
+Byte Bit Tool is a VS Code extension for developers, reverse engineers, and security researchers. Convert numbers between decimal, hexadecimal, and binary, evaluate arithmetic and bitwise expressions, and inspect ASCII codes — directly in your editor.
+
+## Screenshots
+
+Number mode with expression evaluation, integer type checker, bit visualizer and endianness display.
+
+![Number Mode](screenshots/number-mode.png)
+
+ASCII mode with hex/decimal codes and character cards.
+
+![ASCII Mode](screenshots/ascii-mode.png)
+
+## Demo
+
+Number & ASCII mode demonstration.
+
+![Functional display](screenshots/example_usage.gif)
 
 ## Features
 
-### Core Conversion
-- **Instant conversion** between DEC, HEX, and BIN
-- **Smart expression evaluation** with full operator support
-- **Real-time updates** as you type
+Number conversion with expression evaluation. Supports DEC (42), HEX (0xFF), and BIN (0b1010) literals.
 
-### Arithmetic & Bitwise Operations
-| Category | Operators |
-|----------|-----------|
+| Category   | Operators |
+|------------|-----------|
 | Arithmetic | `+` `-` `*` `/` `%` |
-| Bitwise | `&` `\|` `^` `~` `<<` `>>` `>>>` |
-| Grouping | `(` `)` |
+| Bitwise    | `&` `\|` `^` `~` `<<` `>>` `>>>` |
+| Grouping   | `(` `)` |
 
-### Advanced Features
-- **Integer type checking** - See if values fit in int8/16/32 or uint8/16/32
-- **Bit visualization** - Visual bit grid with position indices
-- **Endianness display** - Big and Little Endian byte layouts
-- **Calculation history** - Auto-saves last 20 calculations
-- **One-click copy** - Copy any result to clipboard
+ASCII conversion. Input plain text to get hex and decimal codes. Input hex codes (0x48 0x65 0x6C 0x6C 0x6F) or decimal codes (72 101 108 108 111) to get decoded text. Output includes character cards for each code point.
 
-### Hover Provider
-Hover over any number in your code to see conversions:
-- Decimal (`42`)
-- Hexadecimal (`0x2A`)
-- Binary (`0b00101010`)
-- Beautiful colored output with syntax highlighting
+Integer type checker. Shows whether the current value fits into int8, uint8, int16, uint16, int32, or uint32. The smallest fitting type is highlighted.
+
+Bit visualizer. Displays individual bits with position indices. Width auto-expands from 8 to 16 to 32 bits as needed. Set bits are highlighted.
+
+Endianness display. For values larger than one byte (greater than 0xFF), shows both Big Endian and Little Endian byte layouts. The most significant byte is highlighted.
+
+Calculation history. Last 20 calculations are saved. Click any history entry to restore the expression. Clear button resets history. Auto-save can be enabled in settings.
+
+Hover provider. Hover over any number in your code to see conversions. Works with DEC, HEX, and BIN literals. Output is colored for readability.
 
 ## Installation
 
-1. Open VS Code
-2. Go to Extensions (`Ctrl+Shift+X`)
-3. Search for "Byte Bit Tool"
-4. Click Install
+1. Select and download a version https://github.com/MishaelS/bbt-extension/releases
+2. Open VS Code
+3. Go to Extensions (Ctrl+Shift+X)
+4. Click "..." menu → "Install from VSIX..."
+5. Select the downloaded file
 
-Or install from marketplace: [Byte Bit Tool](https://marketplace.visualstudio.com/items?itemName=mishaels.byte-bit-tool)
+### Or install via command line
+```bash
+code --install-extension {Name of the plugin}
+```
 
 ## Usage
 
-### Open the Tool
-- Click the **BBT icon** (symbol-number) in the Activity Bar (left sidebar)
-- Press `Ctrl+Shift+B` (Windows/Linux) or `Cmd+Shift+B` (Mac)
-- Open Command Palette (`Ctrl+Shift+P`) → `Byte Bit Tool: Open`
+Open the tool via the BBT icon in the Activity Bar, press Ctrl+Shift+B (Windows/Linux) or Cmd+Shift+B (Mac), or run command "Byte Bit Tool: Open" from the Command Palette.
 
-### Examples
+### Number Mode Examples
 
-| Expression | Result |
-|------------|--------|
-| `0xFF + 1` | DEC: 256, HEX: 0x100, BIN: 100000000 |
-| `0b1010 & 0b1100` | DEC: 8, HEX: 0x8, BIN: 1000 |
-| `(0x1F << 2) \| 0b11` | DEC: 127, HEX: 0x7F, BIN: 1111111 |
-| `0xFFFF >> 8` | DEC: 255, HEX: 0xFF, BIN: 11111111 |
+| Expression           | Result DEC | Result HEX | Result BIN |
+|----------------------|------------|------------|------------|
+| 0xFF + 1             | 256        | 0x100      | 0b100000000
+| 0b1010 & 0b1100      | 8          | 0x8        | 0b1000
+| (0x1F << 2) \| 0b11  | 127        | 0x7F       | 0b1111111
+| 0xFFFF >> 8          | 255        | 0xFF       | 0b11111111
 
-### Using the Hover Feature
-1. Open any code file
-2. Hover your mouse over any number (e.g., `0xFF`, `42`, `0b1010`)
-3. A tooltip will appear showing conversions to other formats
+### ASCII Mode Examples
+
+| Expression                  | Result TEXT | Result HEX               | Result DEC |
+|-----------------------------|-------------|--------------------------|------------|
+| "Hello"                     |             | 0x48 0x65 0x6C 0x6C 0x6F | 72 101 108 108 111
+| "0x48 0x65 0x6C 0x6C 0x6F"  | Hello       |                          |
+| "72 101 108 108 111"        | Hello       |                          |
+
+### Hover Feature
+
+Open any code file and hover over numbers like 42, 0xFF, or 0b1010. A tooltip will show conversions to other formats.
 
 ### Copy Results
-- Click the **Copy** button next to any result
-- The value is copied to your clipboard
-- Button shows "✓ Copied" confirmation
+
+Click the Copy button next to any result. The value is copied to clipboard. The button briefly shows "ok" as confirmation.
 
 ### Calculation History
-- Last 20 calculations are automatically saved
-- Click any history item to reload the expression
-- Use the **clear** button to reset history
+
+Last 20 calculations are saved automatically when auto-save is enabled in settings. When auto-save is disabled, press Enter to save the current calculation. Click any history item to reload the expression. Use the clear button to reset history.
+
+## Settings
+
+byteBitTool.autoSave (boolean, default: false) - Automatically save calculations to history while typing. When disabled, press Enter to save.
 
 ## Keyboard Shortcuts
 
-| Action | Windows/Linux | Mac |
-|--------|---------------|-----|
-| Open BBT | `Ctrl+Shift+B` | `Cmd+Shift+B` |
+Open Byte Bit Tool: Ctrl+Shift+B (Windows/Linux) or Cmd+Shift+B (Mac)
 
 ## Supported Number Formats
 
-- **Decimal**: `42`, `-10`, `255`
-- **Hexadecimal**: `0xFF`, `0xDEADBEEF`
-- **Binary**: `0b1010`, `0b11110000`
+* `Decimal:` 42, -10, 255
+* `Hexadecimal:` 0xFF, 0xDEADBEEF
+* `Binary:` 0b1010, 0b11110000
 
-## Integer Type Checking
+## Integer Type Ranges
 
-The tool automatically checks if your number fits in:
-- `int8`: -128 to 127
-- `uint8`: 0 to 255
-- `int16`: -32,768 to 32,767
-- `uint16`: 0 to 65,535
-- `int32`: -2,147,483,648 to 2,147,483,647
-- `uint32`: 0 to 4,294,967,295
-
-The smallest type that fits is highlighted in green.
-
-## Bit Visualization
-
-- Shows individual bits with position indices
-- Bits are grouped every 4 cells for readability
-- Set bits (1) are highlighted in blue
-- Width auto-expands: 8 → 16 → 32 bits
-
-## Endianness Display
-
-For values larger than one byte (> 0xFF), shows:
-- **Big Endian**: Most significant byte first
-- **Little Endian**: Least significant byte first
-- Most significant byte is highlighted
+* `int8:` -128 to 127
+* `int16:` -32768 to 32767
+* `int32:` -2147483648 to 2147483647
+* `uint8:` 0 to 255
+* `uint16:` 0 to 65535
+* `uint32:` 0 to 4294967295
 
 ## Requirements
 
-- VS Code version 1.80.0 or higher
-
-## Extension Settings
-
-This extension does not add any VS Code settings.
-
-## Known Issues
-
-No known issues at this time.
+VS Code version 1.80.0 or higher
 
 ## Release Notes
 
-### 0.0.2
-- Initial release
-- Decimal, Hexadecimal, Binary conversion
-- Arithmetic operations support
-- Bitwise operations support
-- Copy to clipboard functionality
-- Activity Bar integration
-- Keyboard shortcut (Ctrl+Shift+B)
-
----
-
-## For Developers
-
-### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/MishaelS/bbt-extension.git
-cd bbt-extension
-
-# Install dependencies
-npm install
-
-# Compile TypeScript
-npm run compile
-
-# Watch mode for development
-npm run watch
+See CHANGELOG.md for version history.

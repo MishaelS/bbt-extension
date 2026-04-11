@@ -1,12 +1,13 @@
 /**
  * styles.ts
  * All CSS for the BBT webview panel.
- * Split into logical sections for easy editing.
  */
 
-// Base layout & inputs
+/* Base layout & inputs */
 const baseStyles = `
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+        box-sizing: border-box; margin: 0; padding: 0;
+    }
 
     body {
         font-family: var(--vscode-font-family);
@@ -49,8 +50,13 @@ const baseStyles = `
         transition: border-color 0.2s;
     }
 
-    input[type="text"]:focus { border-color: var(--vscode-focusBorder, #007acc); }
-    input[type="text"].error { border-color: #f44747; }
+    input[type="text"]:focus {
+        border-color: var(--vscode-focusBorder, #007acc);
+    }
+
+    input[type="text"].error {
+        border-color: #f44747;
+    }
 
     .error-msg {
         color: #f44747;
@@ -60,7 +66,107 @@ const baseStyles = `
     }
 `;
 
-// Operator cheatsheet
+/* Mode switcher (Number ↔ ASCII) */
+const modeSwitcherStyles = `
+    .mode-switcher {
+        display: flex;
+        gap: 2px;
+        background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
+        border: 1px solid var(--vscode-panel-border, #3c3c3c);
+        border-radius: 6px;
+        padding: 2px;
+        margin-bottom: 16px;
+    }
+
+    .mode-btn {
+        flex: 1;
+        text-align: center;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        color: var(--vscode-foreground, #ccc);
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: var(--vscode-font-family);
+    }
+
+    .mode-btn:hover {
+        background: var(--vscode-list-hoverBackground, #3c3c3c);
+    }
+
+    .mode-btn.active {
+        background: var(--vscode-button-background, #0e639c);
+        color: var(--vscode-button-foreground, #fff);
+    }
+`;
+
+/* ASCII char cards & conversions */
+const asciiStyles = `
+    .ascii-chars {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .ascii-char-card {
+        background: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-panel-border, #3c3c3c);
+        border-radius: 4px;
+        padding: 4px 8px;
+        min-width: 60px;
+        text-align: center;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .ascii-char-card:hover {
+        background: var(--vscode-list-hoverBackground, #3c3c3c);
+    }
+
+    .ascii-char {
+        font-size: 18px;
+        font-weight: 600;
+        font-family: monospace;
+    }
+
+    .ascii-code {
+        font-size: 10px;
+        opacity: 0.6;
+        margin-top: 2px;
+    }
+
+    .ascii-preview {
+        font-family: monospace;
+        font-size: 13px;
+        word-break: break-all;
+    }
+
+    .ascii-conversion-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .ascii-conversion-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        opacity: 0.5;
+        min-width: 52px;
+    }
+
+    .ascii-arrow {
+        color: #569cd6;
+        font-size: 12px;
+    }
+`;
+
+/* Operator cheatsheet */
 const cheatsheetStyles = `
     .cheatsheet {
         display: flex;
@@ -82,7 +188,9 @@ const cheatsheetStyles = `
         transition: background 0.15s;
     }
 
-    .op:hover { background: var(--vscode-list-hoverBackground, #3c3c3c); }
+    .op:hover {
+        background: var(--vscode-list-hoverBackground, #3c3c3c);
+    }
 
     .sep {
         width: 1px;
@@ -92,7 +200,7 @@ const cheatsheetStyles = `
     }
 `;
 
-// Result cards (DEC / HEX / BIN)
+/* Result cards (DEC / HEX / BIN) */
 const resultStyles = `
     .results {
         display: flex;
@@ -120,9 +228,10 @@ const resultStyles = `
         opacity: 0.6;
     }
 
-    .result-label.dec { color: #4ec9b0; }
-    .result-label.hex { color: #569cd6; }
-    .result-label.bin { color: #ce9178; }
+    .result-label.dec   { color: #4ec9b0; }
+    .result-label.hex   { color: #569cd6; }
+    .result-label.bin   { color: #ce9178; }
+    .result-label.ascii { color: #dcdcaa; }
 
     .result-value {
         font-family: var(--vscode-editor-font-family, 'Courier New', monospace);
@@ -144,8 +253,14 @@ const resultStyles = `
         transition: background 0.15s;
     }
 
-    .copy-btn:hover { background: var(--vscode-button-secondaryHoverBackground, #3c3c3c); }
-    .copy-btn.copied { color: #4ec9b0; border-color: #4ec9b0; }
+    .copy-btn:hover {
+        background: var(--vscode-button-secondaryHoverBackground, #3c3c3c);
+    }
+
+    .copy-btn.copied {
+        color: #4ec9b0;
+        border-color: #4ec9b0;
+    }
 
     .bin-groups {
         display: flex;
@@ -164,7 +279,7 @@ const resultStyles = `
     }
 `;
 
-// Section wrapper (used by all extra panels)
+/* Section wrapper */
 const sectionStyles = `
     .section {
         margin-top: 24px;
@@ -182,8 +297,8 @@ const sectionStyles = `
     }
 `;
 
-// Integer type info grid
-const typeStyles = `
+/* Integer type grid */
+const intTypeStyles = `
     .type-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -212,12 +327,17 @@ const typeStyles = `
         color: var(--vscode-terminal-ansiGreen, #4ec9b0);
     }
 
-    .type-card.overflow .type-value { color: var(--vscode-terminal-ansiRed, #f44747); }
-    .type-card.exact .type-name     { color: var(--vscode-terminal-ansiGreen, #4ec9b0); }
+    .type-card.overflow .type-value {
+        color: var(--vscode-terminal-ansiRed, #f44747);
+    }
+
+    .type-card.exact .type-name {
+        color: var(--vscode-terminal-ansiGreen, #4ec9b0);
+    }
 `;
 
-// Bit visualizer
-const bitStyles = `
+/* Bit visualizer */
+const bitGridStyles = `
     .bit-grid-wrap {
         display: flex;
         flex-direction: column;
@@ -239,7 +359,9 @@ const bitStyles = `
         font-family: monospace;
     }
 
-    .bit-index.sep { width: 6px; }
+    .bit-index.sep {
+        width: 6px;
+    }
 
     .bit-cell {
         width: 18px;
@@ -271,9 +393,13 @@ const bitStyles = `
     }
 `;
 
-// Endianness
+/* Endianness */
 const endianStyles = `
-    .endian-wrap { display: flex; flex-direction: column; gap: 8px; }
+    .endian-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
     .endian-row {
         display: flex;
@@ -291,7 +417,11 @@ const endianStyles = `
         min-width: 52px;
     }
 
-    .endian-bytes { display: flex; gap: 4px; flex-wrap: wrap; }
+    .endian-bytes {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
 
     .endian-byte {
         background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
@@ -301,10 +431,13 @@ const endianStyles = `
         font-size: 12px;
     }
 
-    .endian-byte.highlight { border-color: #569cd6; color: #9cdcfe; }
+    .endian-byte.highlight {
+        border-color: #569cd6;
+        color: #9cdcfe;
+    }
 `;
 
-// History
+/* History */
 const historyStyles = `
     .history-list {
         display: flex;
@@ -328,7 +461,9 @@ const historyStyles = `
         transition: background 0.15s;
     }
 
-    .history-item:hover { background: var(--vscode-list-hoverBackground, #3c3c3c); }
+    .history-item:hover {
+        background: var(--vscode-list-hoverBackground, #3c3c3c);
+    }
 
     .history-expr {
         flex: 1;
@@ -338,7 +473,10 @@ const historyStyles = `
         white-space: nowrap;
     }
 
-    .history-result { color: #4ec9b0; white-space: nowrap; }
+    .history-result {
+        color: #4ec9b0;
+        white-space: nowrap;
+    }
 
     .history-empty {
         font-size: 11px;
@@ -358,18 +496,22 @@ const historyStyles = `
         float: right;
     }
 
-    .history-clear:hover { opacity: 0.8; }
+    .history-clear:hover {
+        opacity: 0.8;
+    }
 `;
 
-// Public export
+/* Export */
 export function getAllStyles(): string {
     return [
         baseStyles,
+        modeSwitcherStyles,
+        asciiStyles,
         cheatsheetStyles,
         resultStyles,
         sectionStyles,
-        typeStyles,
-        bitStyles,
+        intTypeStyles,
+        bitGridStyles,
         endianStyles,
         historyStyles,
     ].join('\n');
