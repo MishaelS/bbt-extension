@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on tags like v0.0.3, v1.0.0, etc.
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Install VSCE
+        run: npm install -g @vscode/vsce
+
+      - name: Package VSIX
+        run: vsce package --out byte-bit-tool-${{ github.ref_name }}.vsix
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          # Extract changes for this version from CHANGELOG.md
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "Creating release notes for version $VERSION"
+
+          # Extract the section for this version
+          NOTES=$(awk "/## \\[$VERSION\\]/{flag=1;next}/## \\[/{flag=0}flag" CHANGELOG.md | sed '/^$/d')
+
+          if [ -z "$NOTES" ]; then
+            NOTES="No release notes provided. Please check CHANGELOG.md"
+          fi
+
+          # Save to file and output for next steps
+          echo "$NOTES" > release_notes.md
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: byte-bit-tool-${{ github.ref_name }}.vsix
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to VS Code Marketplace
+        run: vsce publish -p ${{ secrets.VSCE_PAT }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Upload VSIX as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: byte-bit-tool-${{ github.ref_name }}
+          path: byte-bit-tool-${{ github.ref_name }}.vsix
+          retention-days: 30

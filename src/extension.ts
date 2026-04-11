@@ -1,64 +1,74 @@
+/**
+ * extension.ts
+ * Entry point for the BBT VS Code extension.
+ *
+ * Responsibilities:
+ *   - Register the "Open panel" command
+ *   - Register the sidebar WebviewView provider
+ *   - Register the hover provider
+ *
+ * All logic lives in dedicated modules:
+ *   src/hover.ts            — hover provider
+ *   src/webview/index.ts    — HTML assembly
+ *   src/webview/styles.ts   — CSS
+ *   src/webview/html.ts     — markup
+ *   src/webview/logic.ts    — client-side JS
+ */
 import * as vscode from 'vscode';
-import { getWebviewContent } from './webviewContent';
+import { createHoverProvider } from './hover';
+import { getWebviewContent } from './webview/index';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
     console.log('Byte Bit Tool is now active!');
 
-    // Registering the command to open in the main editor
+    /* Panel command */
     const openCommand = vscode.commands.registerCommand('byte-bit-tool.open', () => {
-        console.log('Opening Byte Bit Tool panel');
-        
         const panel = vscode.window.createWebviewPanel(
             'byteBitTool',
             'Byte Bit Tool',
             vscode.ViewColumn.One,
-            { 
-                enableScripts: true,
-                retainContextWhenHidden: true
+            {
+                enableScripts        : true,
+                retainContextWhenHidden: true,
             }
         );
-
         panel.webview.html = getWebviewContent();
-        
-        panel.onDidDispose(() => {
-            console.log('Byte Bit Tool panel disposed');
-        });
+        panel.onDidDispose(() => console.log('Byte Bit Tool panel disposed'));
     });
 
-    // Registering the Webview View Provider for the sidebar
-    // IMPORTANT: the id must match the id in the viewsContainers package.json
-    const provider = new ByteBitToolViewProvider(context.extensionUri);
-    const viewCommand = vscode.window.registerWebviewViewProvider('byte-bit-tool.view', provider);
+    /* Sidebar provider */
+    const sidebarProvider = new ByteBitSidebarProvider(context.extensionUri);
+    const viewCommand = vscode.window.registerWebviewViewProvider(
+        'byte-bit-tool.view',
+        sidebarProvider
+    );
 
-    context.subscriptions.push(openCommand, viewCommand);
+    /* Hover provider */
+    const hoverProvider = createHoverProvider();
+
+    context.subscriptions.push(openCommand, viewCommand, hoverProvider);
 }
 
-// Provider for display in sidebar
-class ByteBitToolViewProvider implements vscode.WebviewViewProvider {
+export function deactivate(): void {
+    console.log('Byte Bit Tool is deactivated');
+}
+
+/* Sidebar WebviewView provider */
+class ByteBitSidebarProvider implements vscode.WebviewViewProvider {
     constructor(private readonly extensionUri: vscode.Uri) {}
 
-    resolveWebviewView(webviewView: vscode.WebviewView) {
-        console.log('Resolving Byte Bit Tool view');
-        
+    resolveWebviewView(webviewView: vscode.WebviewView): void {
         webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this.extensionUri]
+            enableScripts    : true,
+            localResourceRoots: [this.extensionUri],
         };
-        
-        // Installing HTML content directly in sidebar
+
         webviewView.webview.html = getWebviewContent();
-        
-        // Processing messages from webview (if necessary)
+
         webviewView.webview.onDidReceiveMessage(message => {
-            switch (message.command) {
-                case 'copy':
-                    vscode.env.clipboard.writeText(message.text);
-                    break;
+            if (message.command === 'copy') {
+                vscode.env.clipboard.writeText(message.text);
             }
         });
     }
-}
-
-export function deactivate() {
-    console.log('Byte Bit Tool is deactivated');
 }
