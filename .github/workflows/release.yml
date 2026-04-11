@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build VSIX and Create Release
@@ -18,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -52,13 +54,4 @@ jobs:
             ### Or install via command line
             ```bash
             code --install-extension ${{ env.PACKAGE_NAME }}
-            ```
-
-            ### What's New
-            Check CHANGELOG.md for details.
-            draft: false
-            prerelease: false
-            env:
-            ```bash
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             ```
