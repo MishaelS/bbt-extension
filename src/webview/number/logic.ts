@@ -29,7 +29,8 @@ function safeEval(expr)
         return parseInt(m.slice(2), 2).toString();
     });
 
-    if (!/^[\\d\\s\\+\\-\\*\\/\\%\\&\\|\\^\\~\\<\\>\\(\\)]+$/.test(processed)) {
+    // Add dot to allowed characters for float support
+    if (!/^[\\d\\s\\+\\-\\*\\/\\%\\&\\|\\^\\~\\<\\>\\(\\)\\.]+$/.test(processed)) {
         throw new Error('Invalid characters');
     }
 
@@ -39,7 +40,8 @@ function safeEval(expr)
         throw new Error('Invalid result');
     }
 
-    return Math.trunc(result);
+    // Return float without truncation
+    return result;
 }
 
 /*
@@ -57,6 +59,19 @@ var INT_TYPES = [
 
 function renderTypes(value)
 {
+    // Check if the number is an integer
+    if (Math.floor(value) !== value) {
+        var typeGrid = document.getElementById('typeGrid');
+        if (typeGrid) {
+            typeGrid.innerHTML = '<div class="type-card" style="grid-column:1/-1;text-align:center">' +
+                '<div class="type-value">💡 Floating point value</div>' +
+                '<div style="font-size:10px;opacity:0.7;margin-top:4px">Integer types only apply to whole numbers</div>' +
+                '</div>';
+            document.getElementById('sectionTypes').style.display = '';
+        }
+        return;
+    }
+
     var fittingTypes = INT_TYPES.filter(function(t) {
         return value >= t.min && value <= t.max;
     });
@@ -207,29 +222,42 @@ function convertNumber(pushToHistory)
 
     try {
         var result = safeEval(raw);
-        var isNeg  = result < 0;
-        var abs    = Math.abs(result);
-        var binRaw = abs.toString(2);
-
         var dec = result.toString(10);
-        var hex = (isNeg ? '-' : '') + '0x' + abs.toString(16).toUpperCase();
-        var bin = (isNeg ? '-' : '') + '0b'+ binRaw;
 
         input.classList.remove('error');
         errorMsg.textContent = '';
 
-        setOutputValues(dec, hex, bin);
+        // Check if result is integer
+        var isInteger = Math.floor(result) === result;
 
-        var padLen = Math.ceil(binRaw.length / 8) * 8;
-        var padded = binRaw.padStart(padLen, '0');
-        var groups = padded.match(/.{1,8}/g) || [];
-        document.getElementById('binGroups').innerHTML = groups
-            .map(function(b) { return '<span class="bin-byte">' + b + '</span>'; })
-            .join('');
+        if (isInteger) {
+            // Integer path - show everything
+            var isNeg  = result < 0;
+            var abs    = Math.abs(result);
+            var binRaw = abs.toString(2);
+            var hex = (isNeg ? '-' : '') + '0x' + abs.toString(16).toUpperCase();
+            var bin = (isNeg ? '-' : '') + '0b'+ binRaw;
 
-        renderTypes(result);
-        renderBitGrid(result);
-        renderEndian(result);
+            setOutputValues(dec, hex, bin);
+
+            var padLen = Math.ceil(binRaw.length / 8) * 8;
+            var padded = binRaw.padStart(padLen, '0');
+            var groups = padded.match(/.{1,8}/g) || [];
+            document.getElementById('binGroups').innerHTML = groups
+                .map(function(b) { return '<span class="bin-byte">' + b + '</span>'; })
+                .join('');
+
+            renderTypes(result);
+            renderBitGrid(result);
+            renderEndian(result);
+        } else {
+            // Float path - only show DEC
+            setOutputValues(dec, '— (float only)', '— (float only)');
+            document.getElementById('binGroups').innerHTML = '';
+            document.getElementById('sectionTypes').style.display = 'none';
+            document.getElementById('sectionBits').style.display = 'none';
+            document.getElementById('sectionEndian').style.display = 'none';
+        }
 
         if (pushToHistory && _autoSave) {
             if (_numPushTimer) { clearTimeout(_numPushTimer); }

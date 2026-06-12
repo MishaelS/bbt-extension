@@ -5,32 +5,41 @@
 ```
 bbt-extension/
 ├── src/
-│   ├── extension.ts       # Extension entry point
-│   ├── hover.ts           # Hover provider
-│   └── webview/
-│       ├── index.ts       # HTML document assembler
-│       ├── html.ts        # Static HTML markup
-│       ├── styles.ts      # CSS styles
-│       ├── shared/
-│       │   └── logic.ts   # History, mode switch, utilities
-│       ├── number/
-│       │   └── logic.ts   # Number mode JS
-│       └── ascii/
-│           └── logic.ts   # ASCII mode JS
-├── out/                   # Compiled JavaScript
+│   ├── extension.ts                # Extension entry point
+│   ├── hover.ts                    # Hover provider
+│   ├── webview/
+│   │   ├── index.ts                # HTML document assembler
+│   │   ├── html.ts                 # Static HTML markup
+│   │   ├── styles.ts               # CSS styles
+│   │   ├── shared/
+│   │   │   └── logic.ts            # History, mode switch, utilities
+│   │   ├── number/
+│   │   │   └── logic.ts            # Number mode JS
+│   │   └── ascii/
+│   │       └── logic.ts            # ASCII mode JS
+│   └── test/
+│       ├── suite/
+│       │   ├── index.ts            # ...
+│       │   ├── number.test.ts      # Number mode tests
+│       │   ├── ascii.test.ts       # ASCII mode tests
+│       │   ├── hover.test.ts       # Hover provider tests
+│       │   └── shared.test.ts      # Shared logic tests
+│       ├── extension.test.ts       # Main test suite
+│       └── runTest.ts              # Running tests
+├── out/                            # Compiled JavaScript
 ├── resources/
-│   ├── icon.png           # Extension icon
-│   └── icon.svg           # Extension icon
+│   ├── icon.png                    # Extension icon
+│   └── icon.svg                    # Extension icon
 ├── screenshots/
 │   ├── ascii-mode.png
 │   ├── number-mode.png
 │   └── example_usage.gif
-├── package.json           # Extension manifest
-├── tsconfig.json          # TypeScript configuration
+├── package.json                    # Extension manifest
+├── tsconfig.json                   # TypeScript configuration
 ├── .github/
 │   └── workflows/
-│       └── publish.yml    # CI/CD pipeline
-└── README.md              # User documentation
+│       └── publish.yml             # CI/CD pipeline
+└── README.md                       # User documentation
 ```
 
 ## Architecture
@@ -138,4 +147,16 @@ npm run package
 
 # Publish to marketplace
 npm run publish
+```
+
+### Running tests
+```bash
+# Install the missing dependenciesrm -rf webview/
+npm install --save-dev @vscode/test-electron @types/glob @types/jsdom
+
+# Run all the tests
+npm test
+
+# Or only unit tests
+npm run test:unit
 ```

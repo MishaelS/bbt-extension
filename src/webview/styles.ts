@@ -499,6 +499,22 @@ const historyStyles = `
     .history-clear:hover {
         opacity: 0.8;
     }
+
+    /* Float info message */
+    .float-info {
+        background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
+        border-left: 3px solid #569cd6;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        margin-top: 8px;
+    }
+
+    .float-info .info-icon {
+        color: #569cd6;
+        font-weight: bold;
+        margin-right: 6px;
+    }
 `;
 
 /* Export */

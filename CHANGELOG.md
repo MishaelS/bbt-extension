@@ -1,5 +1,35 @@
 # Change Log
 
+## [0.0.5] - 2026-06-12
+
+### Added
+
+- **Floating point number support** - Now you can evaluate expressions with decimal numbers (e.g., `5.5 + 3.2`, `10 / 3`, `0xFF + 0.5`)
+- Automatic detection of integer vs floating point results
+- Clear visual indication when HEX/BIN conversions are not available for float results (`— (float only)`)
+- Informational message for float results explaining that HEX/BIN views only apply to integers
+
+### Changed
+
+- `safeEval()` now preserves floating point values instead of truncating to integers
+- `convertNumber()` now handles two paths:
+  - **Integer path**: Full conversion with HEX, BIN, type checker, bit visualizer, endianness display
+  - **Float path**: Shows only DEC value with clear indication that HEX/BIN are not available
+- Regular expression in `safeEval()` now includes dot (`.`) for decimal numbers
+- Hover provider fully supports floating point numbers with appropriate messages
+
+### Fixed
+
+- Webview initialization issues that prevented Number Mode from responding
+- Mode switcher functionality restored
+- Proper handling of mixed expressions (e.g., `0xFF + 0.5`)
+
+### Technical Details
+
+- Float numbers are mathematically correct - HEX/BIN only exist for integers
+- Bitwise operations (`&`, `|`, `^`, `<<`, `>>`, `>>>`) still work correctly with integers
+- All existing integer functionality remains unchanged
+
 ## [0.0.4] - 2026-04-11
 
 ### Added

@@ -2,7 +2,7 @@
   "name": "byte-bit-tool",
   "displayName": "Byte Bit Tool",
   "description": "Convert numbers between DEC, HEX and BIN with bitwise operations support",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "mishaels",
   "author": {
     "name": "MishaelS",
@@ -106,12 +106,23 @@
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "package": "vsce package",
-    "publish": "vsce publish"
+    "publish": "vsce publish",
+    "test": "npm run compile && node ./out/test/runTest.js",
+    "test:unit": "npm run compile && mocha 'out/test/suite/*.test.js' --timeout 10000"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/chai": "^4.3.11",
+    "@types/glob": "^8.1.0",
+    "@types/jsdom": "^28.0.3",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^18.19.130",
     "@types/vscode": "^1.80.0",
+    "@vscode/test-electron": "^3.0.0",
+    "chai": "^4.3.10",
     "eslint": "^10.2.0",
+    "jsdom": "^24.0.0",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.58.1"
   }
