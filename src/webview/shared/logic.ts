@@ -23,6 +23,43 @@ var _numLastPushed   = null;
 var _asciiLastPushed = null;
 var _autoSave        = false; // overridden by VS Code on load via postMessage
 
+// Storage keys
+var STORAGE_KEYS = {
+    NUM_HISTORY  : 'bbt_num_history',
+    ASCII_HISTORY: 'bbt_ascii_history'
+};
+
+// Load history from localStorage
+function loadHistoryFromStorage()
+{
+    try {
+        var savedNumHistory = localStorage.getItem(STORAGE_KEYS.NUM_HISTORY);
+        if (savedNumHistory) {
+            _numHistory = JSON.parse(savedNumHistory);
+        }
+
+        var savedAsciiHistory = localStorage.getItem(STORAGE_KEYS.ASCII_HISTORY);
+        if (savedAsciiHistory) {
+            _asciiHistory = JSON.parse(savedAsciiHistory);
+        }
+
+        renderHistory();
+    } catch (e) {
+        console.error('Failed to load history:', e);
+    }
+}
+
+// Save history to localStorage
+function saveHistoryToStorage()
+{
+    try {
+        localStorage.setItem(STORAGE_KEYS.NUM_HISTORY, JSON.stringify(_numHistory));
+        localStorage.setItem(STORAGE_KEYS.ASCII_HISTORY, JSON.stringify(_asciiHistory));
+    } catch (e) {
+        console.error('Failed to save history:', e);
+    }
+}
+
 function addToHistory(expr, result, mode)
 {
     var list = mode === 'number' ? _numHistory : _asciiHistory;
@@ -32,6 +69,7 @@ function addToHistory(expr, result, mode)
     if (list.length > 20) { list.pop(); }
 
     renderHistory();
+    saveHistoryToStorage();
 }
 
 function clearHistory()
@@ -41,6 +79,7 @@ function clearHistory()
     _numLastPushed   = null;
     _asciiLastPushed = null;
     renderHistory();
+    saveHistoryToStorage();
 
     // Return focus to the active input field
     if (_currentMode === 'number') {
