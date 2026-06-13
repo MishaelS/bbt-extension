@@ -1,5 +1,31 @@
 # Change Log
 
+## [0.0.6] - 2026-06-13
+
+### Added
+
+- **Short form literals** - Support for shorthand hex (`xFF`) and binary (`b1010`) prefixes
+- **Persistent history** - Calculation history now saved between VS Code sessions using localStorage
+- **Auto-focus on input fields** - Automatic focus when switching modes or loading from history
+
+### Changed
+
+- `safeEval()` now recognizes `x` prefix for hex and `b` prefix for binary literals
+- Hover provider detects short form literals in code
+- History storage moved to localStorage for persistence across sessions
+- Input fields automatically get focus on page load, mode switch, and history load
+
+### Fixed
+
+- History now properly persists after VS Code restart
+- Focus management improved for better UX
+
+### Technical Details
+
+- Short form literals maintain full backward compatibility with standard `0x`/`0b` prefixes
+- History limited to 20 entries per mode with automatic storage
+- Focus management implemented in `setMode()`, `loadFromHistory()`, and `clearHistory()`
+
 ## [0.0.5] - 2026-06-12
 
 ### Added

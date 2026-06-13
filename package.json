@@ -2,7 +2,7 @@
   "name": "byte-bit-tool",
   "displayName": "Byte Bit Tool",
   "description": "Convert numbers between DEC, HEX and BIN with bitwise operations support",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "mishaels",
   "author": {
     "name": "MishaelS",

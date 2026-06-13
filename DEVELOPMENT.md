@@ -127,6 +127,24 @@ processed = processed.replace(/0b[01]+/gi, (m) => parseInt(m.slice(2), 2).toStri
 new Function('return (' + processed + ')')()
 ```
 
+### Short Form Literals (v0.0.6+)
+
+The extension now supports shorthand notation:
+
+```javascript
+// Standard forms (still work)
+0xFF + 0b1010
+
+// Short forms (new)
+xFF + b1010
+x F F        // spaces allowed
+b 1 0 1 0    // spaces allowed
+```
+
+Regex patterns in `safeEval()`:
+- Hex short: `/(?:^|[^a-fA-F0-9])x([0-9a-fA-F]+)/gi`
+- Binary short: `/(?:^|[^01])b([01]+)/gi`
+
 ## Webview Communication
 
 Settings are sent from extension to webview via postMessage on load and when configuration changes. Webview listens for messages of type `settings`.

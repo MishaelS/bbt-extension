@@ -31,6 +31,13 @@ Extension Host (VS Code)
 
 ## Important Implementation Details
 
+### Short Form Literals (v0.0.6+)
+
+- Hex: `xFF` instead of `0xFF`
+- Binary: `b1010` instead of `0b1010`
+- Fully backward compatible with standard prefixes
+- Implemented in `safeEval()` regex patterns
+
 ### Number Mode (`number/logic.ts`)
 
 - **`safeEval(expr)`**: Converts 0x/0b literals -> decimal, validates with regex, executes via `new Function()`, returns float
@@ -74,6 +81,7 @@ npm run publish      # Publish to marketplace (requires auth)
 ```
 
 ## Version History
+- **0.0.6**: Short form literals (xFF, b1010), persistent history, auto-focus
 - **0.0.5**: Floating point support, fixed webview issues
 - **0.0.4**: ASCII mode, type checker, bit visualizer, endianness
 - **0.0.2**: Initial release

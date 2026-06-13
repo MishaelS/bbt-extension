@@ -66,10 +66,9 @@ Open the tool via the BBT icon in the Activity Bar, press Ctrl+Shift+B (Windows/
 
 | Expression           | Result DEC | Result HEX | Result BIN |
 |----------------------|------------|------------|------------|
-| 0xFF + 1             | 256        | 0x100      | 0b100000000
-| 0b1010 & 0b1100      | 8          | 0x8        | 0b1000
-| (0x1F << 2) \| 0b11  | 127        | 0x7F       | 0b1111111
-| 0xFFFF >> 8          | 255        | 0xFF       | 0b11111111
+| xFF + 1              | 256        | 0x100      | 0b100000000
+| b1010 & b1100        | 8          | 0x8        | 0b1000
+| xFF + b1             | 256        | 0x100      | 0b100000000
 
 ### ASCII Mode Examples
 
@@ -101,16 +100,16 @@ Open Byte Bit Tool: Ctrl+Shift+B (Windows/Linux) or Cmd+Shift+B (Mac)
 
 ## Supported Number Formats
 
-* `Decimal:` 42, -10, 255
-* `Hexadecimal:` 0xFF, 0xDEADBEEF
-* `Binary:` 0b1010, 0b11110000
+* `Decimal:`     42, -10, 255
+* `Hexadecimal:` 0xFF,   0xDEADBEEF, **xFF   (short form)**
+* `Binary:`      0b1010, 0b11110000, **b1010 (short form)**
 
 ## Integer Type Ranges
 
-* `int8:` -128 to 127
-* `int16:` -32768 to 32767
-* `int32:` -2147483648 to 2147483647
-* `uint8:` 0 to 255
+* `int8:`   -128 to 127
+* `int16:`  -32768 to 32767
+* `int32:`  -2147483648 to 2147483647
+* `uint8:`  0 to 255
 * `uint16:` 0 to 65535
 * `uint32:` 0 to 4294967295
 
