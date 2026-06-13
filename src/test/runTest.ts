@@ -11,10 +11,11 @@ async function main()
         const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
         // Download VS Code, unzip it and run the integration test
+        // Note: launchArgs can be empty on macOS where certain CLI options are not supported
         await runTests({
             extensionDevelopmentPath,
             extensionTestsPath,
-            launchArgs: ['--disable-extensions']
+            launchArgs: []
         });
     } catch (err) {
         console.error('Failed to run tests', err);

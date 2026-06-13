@@ -11,7 +11,6 @@ export function run(): Promise<void>
     });
 
     const testsRoot = path.resolve(__dirname, '.');
-    const excludePattern = '!(hover.test|number.test|ascii.test).js';
 
     return new Promise((c, e) => {
         glob('*.test.js', { cwd: testsRoot, ignore: ['hover.test.js', 'number.test.js', 'ascii.test.js'] }, (err: Error | null, files: string[]) => {

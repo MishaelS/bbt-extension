@@ -108,7 +108,8 @@
     "package": "vsce package",
     "publish": "vsce publish",
     "test": "npm run compile && node ./out/test/runTest.js",
-    "test:unit": "npm run compile && mocha 'out/test/suite/*.test.js' --timeout 10000"
+    "test:unit": "npm run compile && mocha 'out/test/suite/*.test.js' --timeout 10000",
+    "test:ci": "npm run compile && npm run test:unit"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",

@@ -21,6 +21,9 @@ function safeEval(expr)
 {
     var processed = expr;
 
+    // Remove spaces from the expression first
+    processed = processed.replace(/\\s/g, '');
+
     // Support for standard hex literals (0xFF)
     processed = processed.replace(/0x[0-9a-fA-F]+/gi, function(m) {
         return parseInt(m, 16).toString();

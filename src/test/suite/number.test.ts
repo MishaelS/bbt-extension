@@ -175,3 +175,142 @@ describe('Number Conversion Logic', () => {
         assert.strictEqual(hex, '— (float only)');
     });
 });
+
+// Performance and edge case tests
+describe('Performance and Edge Cases', () => {
+    let safeEval: Function;
+
+    before(async () => {
+        setupMockEnvironment();
+        const logicCode = getNumberLogic();
+        const fn = new Function(logicCode + '; return { safeEval, INT_TYPES };');
+        const exported = fn();
+        safeEval = exported.safeEval;
+    });
+
+    describe('Edge Cases', () => {
+        it('should handle zero', () => {
+            const result = safeEval('0');
+            assert.strictEqual(result, 0);
+        });
+
+        it('should handle negative numbers', () => {
+            const result = safeEval('-255');
+            assert.strictEqual(result, -255);
+        });
+
+        it('should handle negative floats', () => {
+            const result = safeEval('-3.14');
+            assert.strictEqual(result, -3.14);
+        });
+
+        it('should handle very large numbers', () => {
+            const result = safeEval('999999999');
+            assert.strictEqual(result, 999999999);
+        });
+
+        it('should handle very small floats', () => {
+            const result = safeEval('0.0001');
+            assert.strictEqual(result, 0.0001);
+        });
+
+        it('should handle zero hex', () => {
+            const result = safeEval('0x0');
+            assert.strictEqual(result, 0);
+        });
+
+        it('should handle zero binary', () => {
+            const result = safeEval('0b0');
+            assert.strictEqual(result, 0);
+        });
+
+        it('should handle complex nested operations', () => {
+            const result = safeEval('((5 + 3) * 2) - 1');
+            assert.strictEqual(result, 15);
+        });
+
+        it('should handle operations with multiple hex values', () => {
+            const result = safeEval('0xFF + 0x0F + 0x01');
+            assert.strictEqual(result, 271);
+        });
+
+        it('should handle operations with multiple binary values', () => {
+            const result = safeEval('0b1010 + 0b0101 + 0b0001');
+            assert.strictEqual(result, 16);
+        });
+    });
+
+    describe('Performance', () => {
+        it('should evaluate simple expression quickly', () => {
+            const start = Date.now();
+            safeEval('5 + 3');
+            const elapsed = Date.now() - start;
+            assert.ok(elapsed < 100, `Operation took ${elapsed}ms, should be < 100ms`);
+        });
+
+        it('should evaluate complex expression quickly', () => {
+            const start = Date.now();
+            safeEval('((5.5 * 2) + (10 / 4)) * (8 - 3)');
+            const elapsed = Date.now() - start;
+            assert.ok(elapsed < 100, `Operation took ${elapsed}ms, should be < 100ms`);
+        });
+
+        it('should evaluate many hex conversions quickly', () => {
+            const start = Date.now();
+            for (let i = 0; i < 100; i++) {
+                safeEval('0xFF + 0xAB + 0x12');
+            }
+            const elapsed = Date.now() - start;
+            assert.ok(elapsed < 500, `100 operations took ${elapsed}ms, should be < 500ms`);
+        });
+
+        it('should handle integer type detection efficiently', () => {
+            const start = Date.now();
+            const result = safeEval('255');
+            const isInteger = Math.floor(result) === result;
+            const elapsed = Date.now() - start;
+            assert.strictEqual(isInteger, true);
+            assert.ok(elapsed < 50, `Operation took ${elapsed}ms, should be < 50ms`);
+        });
+
+        it('should handle float detection efficiently', () => {
+            const start = Date.now();
+            const result = safeEval('3.14159');
+            const isFloat = Math.floor(result) !== result;
+            const elapsed = Date.now() - start;
+            assert.strictEqual(isFloat, true);
+            assert.ok(elapsed < 50, `Operation took ${elapsed}ms, should be < 50ms`);
+        });
+    });
+
+    describe('Error Handling', () => {
+        it('should throw on division by zero attempt in expression', () => {
+            assert.throws(() => safeEval('1 / 0'), /Invalid result/);
+        });
+
+        it('should throw on invalid hex literals', () => {
+            assert.throws(() => safeEval('0xGG'), /Invalid characters/);
+        });
+
+        it('should throw on invalid binary literals', () => {
+            assert.throws(() => safeEval('0b2'), /Invalid characters/);
+        });
+
+        it('should throw on unclosed parentheses', () => {
+            assert.throws(() => safeEval('(5 + 3'));
+        });
+
+        it('should throw on double operators', () => {
+            assert.throws(() => safeEval('5 ++ 3'));
+        });
+
+        it('should reject empty string', () => {
+            assert.throws(() => safeEval(''), /Invalid characters|Invalid result|SyntaxError/);
+        });
+
+        it('should handle whitespace in expressions', () => {
+            const result = safeEval('5   +   3');
+            assert.strictEqual(result, 8);
+        });
+    });
+});
