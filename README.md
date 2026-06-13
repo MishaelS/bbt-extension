@@ -50,7 +50,7 @@ Hover provider. Hover over any number in your code to see conversions. Works wit
 1. Select and download a version https://github.com/MishaelS/bbt-extension/releases
 2. Open VS Code
 3. Go to Extensions (Ctrl+Shift+X)
-4. Click "..." menu → "Install from VSIX..."
+4. Click "..." menu -> "Install from VSIX..."
 5. Select the downloaded file
 
 ### Or install via command line

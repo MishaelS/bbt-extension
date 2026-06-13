@@ -25,15 +25,27 @@ interface ParseResult
 /* Parsing */
 function parseNumericWord(word: string): ParseResult | null
 {
-    // Support for hexadecimal literals with 0x prefix
+    // Support for standard hexadecimal literals with 0x prefix
     if (/^0x[0-9a-fA-F]+$/i.test(word)) {
         const value = parseInt(word.slice(2), 16);
         return isNaN(value) ? null : { value, detectedBase: 'hex' };
     }
 
-    // Support for binary literals with 0b prefix
+    // Support for short hex literals (xFF) - no 0 prefix
+    if (/^x[0-9a-fA-F]+$/i.test(word)) {
+        const value = parseInt(word.slice(1), 16);
+        return isNaN(value) ? null : { value, detectedBase: 'hex' };
+    }
+
+    // Support for standard binary literals with 0b prefix
     if (/^0b[01]+$/i.test(word)) {
         const value = parseInt(word.slice(2), 2);
+        return isNaN(value) ? null : { value, detectedBase: 'bin' };
+    }
+
+    // Support for short binary literals (b1010) - no 0 prefix
+    if (/^b[01]+$/i.test(word)) {
+        const value = parseInt(word.slice(1), 2);
         return isNaN(value) ? null : { value, detectedBase: 'bin' };
     }
 
@@ -109,7 +121,7 @@ function buildHoverContent(
         `${span(C.dim, 'BBT')} &nbsp;` +
         `${span(C.dim, 'detected:')} ` +
         `${span(C.label, labelMap[detectedBase])} ` +
-        `${span(C.dim, '→')} ` +
+        `${span(C.dim, '->')} ` +
         `${span(C.number, original)}` +
         `</div>` +
         `<div style="border-top:1px solid #3E4451;margin-bottom:6px"></div>`;
@@ -133,7 +145,7 @@ function buildHoverContent(
     // Adding an information line for fractional numbers
     if (!isInteger && detectedBase !== 'dec') {
         rows += `<div style="font-family:monospace;font-size:10px;color:${C.dim};margin-top:4px">`;
-        rows += `ℹ️ HEX/BIN conversions only available for integers`;
+        rows += `HEX/BIN conversions only available for integers`;
         rows += `</div>`;
     }
 
@@ -157,7 +169,7 @@ export function createHoverProvider(): vscode.Disposable
             provideHover(document, position) {
                 const range = document.getWordRangeAtPosition(
                     position,
-                    /0x[0-9a-fA-F]+|0b[01]+|-?\d+(?:\.\d+)?/
+                    /0x[0-9a-fA-F]+|x[0-9a-fA-F]+|0b[01]+|b[01]+|-?\d+(?:\.\d+)?/
                 );
                 if (!range) { return undefined; }
 

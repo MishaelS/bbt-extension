@@ -23,17 +23,17 @@ VS Code extension for developers, reverse engineers, and security researchers. P
 
 ## Architecture
 Extension Host (VS Code)
-├── Hover Provider (hover.ts) → Shows tooltips on numbers
+├── Hover Provider (hover.ts) -> Shows tooltips on numbers
 └── Webview Panel
-    ├── Number Mode (number/logic.ts) → safeEval, conversions
-    ├── ASCII Mode (ascii/logic.ts) → text ↔ codes
-    └── Shared (shared/logic.ts) → history, mode switcher
+    ├── Number Mode (number/logic.ts) -> safeEval, conversions
+    ├── ASCII Mode (ascii/logic.ts) -> text ↔ codes
+    └── Shared (shared/logic.ts) -> history, mode switcher
 
 ## Important Implementation Details
 
 ### Number Mode (`number/logic.ts`)
 
-- **`safeEval(expr)`**: Converts 0x/0b literals → decimal, validates with regex, executes via `new Function()`, returns float
+- **`safeEval(expr)`**: Converts 0x/0b literals -> decimal, validates with regex, executes via `new Function()`, returns float
 - **`convertNumber()`**: Checks integer vs float, shows full UI for integers, DEC-only for floats
 - **`renderTypes()`, `renderBitGrid()`, `renderEndian()`**: Only called for integers
 

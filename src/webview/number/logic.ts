@@ -21,12 +21,28 @@ function safeEval(expr)
 {
     var processed = expr;
 
+    // Support for standard hex literals (0xFF)
     processed = processed.replace(/0x[0-9a-fA-F]+/gi, function(m) {
         return parseInt(m, 16).toString();
     });
 
+    // Support for short hex literals (xFF or xFF) - no 0 prefix
+    processed = processed.replace(/(?:^|[^a-fA-F0-9])x([0-9a-fA-F]+)/gi, function(match, hex) {
+        // Make sure we don't replace things like "textx123"
+        if (match.match(/[a-zA-Z0-9]x/)) return match;
+        return parseInt(hex, 16).toString();
+    });
+
+    // Support for standard binary literals (0b1010)
     processed = processed.replace(/0b[01]+/gi, function(m) {
         return parseInt(m.slice(2), 2).toString();
+    });
+
+    // Support for short binary literals (b1010 or b1010) - no 0 prefix
+    processed = processed.replace(/(?:^|[^01])b([01]+)/gi, function(match, bin) {
+        // Make sure we don't replace things like "ab1010"
+        if (match.match(/[a-zA-Z0-9]b/)) return match;
+        return parseInt(bin, 2).toString();
     });
 
     // Add dot to allowed characters for float support

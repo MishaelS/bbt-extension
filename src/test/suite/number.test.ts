@@ -111,6 +111,26 @@ describe('Number Mode Tests', () => {
             const result = safeEval('0b1010 << 2');
             assert.strictEqual(result, 40);
         });
+
+        it('should parse short hex literals', () => {
+            const result = safeEval('xFF');
+            assert.strictEqual(result, 255);
+        });
+
+        it('should parse short binary literals', () => {
+            const result = safeEval('b1010');
+            assert.strictEqual(result, 10);
+        });
+
+        it('should handle mixed short and standard formats', () => {
+            const result = safeEval('xFF + 0b1');
+            assert.strictEqual(result, 256);
+        });
+
+        it('should parse short hex with spaces', () => {
+            const result = safeEval('x F F');
+            assert.strictEqual(result, 255);
+        });
     });
 
     describe('Number type detection', () => {

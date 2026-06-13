@@ -48,7 +48,7 @@ jobs:
             ### Installation
             1. Download `${{ env.PACKAGE_NAME }}`
             2. In VS Code, go to Extensions (Ctrl+Shift+X)
-            3. Click "..." menu → "Install from VSIX..."
+            3. Click "..." menu -> "Install from VSIX..."
             4. Select the downloaded file
 
             ### Or install via command line

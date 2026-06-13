@@ -234,7 +234,7 @@ function convertAscii()
         var inputIsDec = !inputIsHex && isDecCodes(rawInput);
 
         if (inputIsHex) {
-            direction = '[HEX] codes → text';
+            direction = '[HEX] codes -> text';
             var decoded  = decodeHexToText(rawInput);
             textResult   = decoded.text;
             hexResult    = decoded.bytes.map(function(b) { return '0x' + b; }).join(' ');
@@ -242,7 +242,7 @@ function convertAscii()
             codes        = decoded.codes;
         }
         else if (inputIsDec) {
-            direction = '[DEC] codes → text';
+            direction = '[DEC] codes -> text';
             var decodedDec = decodeDecToText(rawInput);
             textResult     = decodedDec.text;
             hexResult      = decodedDec.codes.map(function(c) {
@@ -252,7 +252,7 @@ function convertAscii()
             codes     = decodedDec.codes;
         }
         else {
-            direction = '[TEXT] → codes';
+            direction = '[TEXT] -> codes';
             var encoded = encodeTextToCodes(rawInput);
             textResult  = rawInput;
             hexResult   = encoded.hexPretty;
