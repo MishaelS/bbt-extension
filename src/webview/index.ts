@@ -3,11 +3,11 @@
  * Assembles the complete HTML document for the BBT webview panel.
  *
  * Imports:
- *   getAllStyles()    ← styles.ts        (all CSS)
- *   getMarkup()       ← html.ts          (markup)
- *   getNumberLogic()  ← number/logic.ts  (number mode JS)
- *   getAsciiLogic()   ← ascii/logic.ts   (ASCII mode JS)
- *   getSharedLogic()  ← shared/logic.ts  (history, mode switch, utilities)
+ *   getAllStyles()    <- styles.ts        (all CSS)
+ *   getMarkup()       <- html.ts          (markup)
+ *   getNumberLogic()  <- number/logic.ts  (number mode JS)
+ *   getAsciiLogic()   <- ascii/logic.ts   (ASCII mode JS)
+ *   getSharedLogic()  <- shared/logic.ts  (history, mode switch, utilities)
  */
 import { getAsciiLogic } from './ascii/logic';
 import { getMarkup } from './html';

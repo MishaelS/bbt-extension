@@ -41,6 +41,13 @@ function clearHistory()
     _numLastPushed   = null;
     _asciiLastPushed = null;
     renderHistory();
+
+    // Return focus to the active input field
+    if (_currentMode === 'number') {
+        document.getElementById('numInput').focus();
+    } else {
+        document.getElementById('asciiInput').focus();
+    }
 }
 
 function renderHistory()
@@ -77,10 +84,12 @@ function loadFromHistory(i)
         setMode('number');
         document.getElementById('numInput').value = item.expr;
         convertNumber(false);
+        document.getElementById('numInput').focus();  // Add focus
     } else {
         setMode('ascii');
         document.getElementById('asciiInput').value = item.expr;
         convertAscii();
+        document.getElementById('asciiInput').focus();  // Add focus
     }
 }
 
@@ -123,7 +132,13 @@ function setMode(mode)
     document.getElementById('numberResults').style.display = isNumber ? 'block' : 'none';
     document.getElementById('asciiResults').style.display  = isNumber ? 'none'  : 'block';
 
-    if (isNumber) { convertNumber(); } else { convertAscii(); }
+    if (isNumber) { 
+        convertNumber(); 
+        document.getElementById('numInput').focus();  // Set focus to number input after mode switch
+    } else { 
+        convertAscii();
+        document.getElementById('asciiInput').focus();  // Set focus to ascii input after mode switch
+    }
 }
 
 /*
@@ -164,6 +179,9 @@ window.addEventListener('message', function(event) {
 });
 
 convertNumber();
+
+// Set focus to number input on page load
+document.getElementById('numInput').focus();
 
     `;
 }
