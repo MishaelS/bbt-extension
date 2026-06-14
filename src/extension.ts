@@ -19,6 +19,15 @@ import * as vscode from 'vscode';
 import { createHoverProvider } from './hover';
 import { buildWebviewDocument } from './webview/index';
 
+function getWorkspaceStorageKey(): string
+{
+    const folder = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length
+        ? vscode.workspace.workspaceFolders[0].uri.toString()
+        : 'no-workspace';
+
+    return encodeURIComponent(folder);
+}
+
 export function activate(context: vscode.ExtensionContext): void
 {
     console.log('Byte Bit Tool is now active!');
@@ -39,7 +48,7 @@ export function activate(context: vscode.ExtensionContext): void
         const sendSettings = () => {
             const cfg      = vscode.workspace.getConfiguration('byteBitTool');
             const autoSave = cfg.get<boolean>('autoSave', false);
-            panel.webview.postMessage({ type: 'settings', autoSave });
+            panel.webview.postMessage({ type: 'settings', autoSave, workspaceKey: getWorkspaceStorageKey() });
         };
 
         sendSettings();
@@ -87,7 +96,7 @@ class SidebarProvider implements vscode.WebviewViewProvider
         const sendSettings = () => {
             const cfg     = vscode.workspace.getConfiguration('byteBitTool');
             const autoSave = cfg.get<boolean>('autoSave', false);
-            webviewView.webview.postMessage({ type: 'settings', autoSave });
+            webviewView.webview.postMessage({ type: 'settings', autoSave, workspaceKey: getWorkspaceStorageKey() });
         };
 
         sendSettings();

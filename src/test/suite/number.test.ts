@@ -127,6 +127,15 @@ describe('Number Mode Tests', () => {
             assert.strictEqual(result, 256);
         });
 
+        it('should preserve operators before short hex literals', () => {
+            const result = safeEval('(x10) << 8 | 0x31');
+            assert.strictEqual(result, 4145);
+        });
+
+        it('should throw on unclosed short hex expression', () => {
+            assert.throws(() => safeEval('(x10 << 8 | 0x31'));
+        });
+
         it('should parse short hex with spaces', () => {
             const result = safeEval('x F F');
             assert.strictEqual(result, 255);

@@ -3,8 +3,8 @@
  * Client-side JS for Number mode.
  *
  * Sections:
- *   1. safeEval     — expression evaluator (DEC / HEX / BIN literals + operators)
- *   2. renderTypes  — int8 / uint8 / int16 / uint16 / int32 / uint32 fit grid
+ *   1. safeEval      — expression evaluator (DEC / HEX / BIN literals + operators)
+ *   2. renderTypes   — int8 / uint8 / int16 / uint16 / int32 / uint32 fit grid
  *   3. renderBitGrid — visual bit cells with index labels
  *   4. renderEndian  — Big / Little Endian byte layout
  *   5. convertNumber — main entry point, wires everything together
@@ -29,11 +29,9 @@ function safeEval(expr)
         return parseInt(m, 16).toString();
     });
 
-    // Support for short hex literals (xFF or xFF) - no 0 prefix
-    processed = processed.replace(/(?:^|[^a-fA-F0-9])x([0-9a-fA-F]+)/gi, function(match, hex) {
-        // Make sure we don't replace things like "textx123"
-        if (match.match(/[a-zA-Z0-9]x/)) return match;
-        return parseInt(hex, 16).toString();
+    // Support for short hex literals (xFF) - no 0 prefix
+    processed = processed.replace(/(^|[^a-fA-F0-9])x([0-9a-fA-F]+)/gi, function(match, prefix, hex) {
+        return prefix + parseInt(hex, 16).toString();
     });
 
     // Support for standard binary literals (0b1010)
@@ -41,11 +39,9 @@ function safeEval(expr)
         return parseInt(m.slice(2), 2).toString();
     });
 
-    // Support for short binary literals (b1010 or b1010) - no 0 prefix
-    processed = processed.replace(/(?:^|[^01])b([01]+)/gi, function(match, bin) {
-        // Make sure we don't replace things like "ab1010"
-        if (match.match(/[a-zA-Z0-9]b/)) return match;
-        return parseInt(bin, 2).toString();
+    // Support for short binary literals (b1010) - no 0 prefix
+    processed = processed.replace(/(^|[^a-zA-Z0-9])b([01]+)/gi, function(match, prefix, bin) {
+        return prefix + parseInt(bin, 2).toString();
     });
 
     // Add dot to allowed characters for float support
@@ -61,6 +57,87 @@ function safeEval(expr)
 
     // Return float without truncation
     return result;
+}
+
+/*
+   1.5. INPUT HANDLER WITH AUTO-COMPLETE
+*/
+
+function handleNumberInputKeydown(event)
+{
+    var input = event.target;
+    var start = input.selectionStart;
+    var end = input.selectionEnd;
+    var value = input.value;
+
+    // Auto-complete parentheses: when user types '('
+    if (event.key === '(') {
+        event.preventDefault();
+        var newValue = value.slice(0, start) + '()' + value.slice(end);
+        input.value = newValue;
+        input.setSelectionRange(start + 1, start + 1);
+        return;
+    }
+
+    // Auto-complete '<<' and '>>'
+    if (event.key === '<') {
+        // Check if previous character is also '<' (double click or fast typing)
+        if (start > 0 && value[start - 1] === '<') {
+            // Already have one '<', now we have '<<'
+            return;
+        }
+
+        // Check if next character is '>' (for shift right)
+        if (start < value.length && value[start] === '>') {
+            return;
+        }
+
+        // Insert '<<' and place cursor between them? No, place after
+        // But standard behavior: user types '<', we insert '<<' and cursor after
+        event.preventDefault();
+        var newValue = value.slice(0, start) + '<<' + value.slice(end);
+        input.value = newValue;
+        input.setSelectionRange(start + 2, start + 2);
+        return;
+    }
+
+    if (event.key === '>') {
+        // Check if previous character is '>' (double click)
+        if (start > 0 && value[start - 1] === '>') {
+            return;
+        }
+
+        // Check if previous character is '<' (shift left already has two)
+        if (start > 0 && value[start - 1] === '<') {
+            return;
+        }
+
+        event.preventDefault();
+        var newValue = value.slice(0, start) + '>>' + value.slice(end);
+        input.value = newValue;
+        input.setSelectionRange(start + 2, start + 2);
+        return;
+    }
+
+    // Auto-skip closing parenthesis: if user types ')' and next char is ')', skip it
+    if (event.key === ')') {
+        if (start < value.length && value[start] === ')') {
+            event.preventDefault();
+            input.setSelectionRange(start + 1, start + 1);
+            return;
+        }
+        return;
+    }
+
+    // Auto-skip '>' if next char is '>' (for '>>')
+    if (event.key === '>') {
+        if (start < value.length && value[start] === '>') {
+            event.preventDefault();
+            input.setSelectionRange(start + 1, start + 1);
+            return;
+        }
+        return;
+    }
 }
 
 /*

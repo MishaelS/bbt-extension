@@ -3,13 +3,17 @@
  * Assembles the complete HTML document for the BBT webview panel.
  *
  * Imports:
- *   getAllStyles()    <- styles.ts        (all CSS)
- *   getMarkup()       <- html.ts          (markup)
- *   getNumberLogic()  <- number/logic.ts  (number mode JS)
- *   getAsciiLogic()   <- ascii/logic.ts   (ASCII mode JS)
- *   getSharedLogic()  <- shared/logic.ts  (history, mode switch, utilities)
+ *   getAllStyles()   <- styles.ts        (all CSS)
+ *   getMarkup()      <- html.ts          (markup)
+ *   getNumberLogic() <- number/logic.ts  (number mode JS)
+ *   getAsciiLogic()  <- ascii/logic.ts   (ASCII mode JS)
+ *   getDiffLogic()   <- diff/logic.ts    (Binary Diff mode JS)
+ *   getHelpLogic()   <- help/logic.ts    (help info)
+ *   getSharedLogic() <- shared/logic.ts  (history, mode switch, utilities)
  */
 import { getAsciiLogic } from './ascii/logic';
+import { getDiffLogic } from './diff/logic';
+import { getHelpLogic } from './help/logic';
 import { getMarkup } from './html';
 import { getNumberLogic } from './number/logic';
 import { getSharedLogic } from './shared/logic';
@@ -30,6 +34,8 @@ export function buildWebviewDocument(): string {
         <script>
             ${getNumberLogic()}
             ${getAsciiLogic()}
+            ${getDiffLogic()}
+            ${getHelpLogic()}
             ${getSharedLogic()}
         </script>
     </body>

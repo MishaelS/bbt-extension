@@ -6,41 +6,42 @@ VS Code extension for developers, reverse engineers, and security researchers. P
 - Number conversion (DEC/HEX/BIN) with arithmetic/bitwise operations
 - ASCII mode (text ↔ hex/dec codes)
 - Floating point support (v0.0.5+)
+- Binary Diff mode for comparing hex dumps (v0.0.6+)
 - Hover provider for numbers in code
+- Interactive help system
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/extension.ts` | Entry point, registers commands and providers |
-| `src/hover.ts` | Hover provider for numeric literals |
-| `src/webview/index.ts` | Assembles HTML/CSS/JS for the panel |
-| `src/webview/number/logic.ts` | Number mode: safeEval, convertNumber, render functions |
-| `src/webview/ascii/logic.ts` | ASCII mode: detection, encoding/decoding |
-| `src/webview/shared/logic.ts` | History, mode switching, copy utilities |
-| `src/webview/styles.ts` | All CSS styles |
-| `src/webview/html.ts` | Static HTML markup |
+|              File              | Purpose |
+|--------------------------------|---------|
+| `src/extension.ts`             | Entry point, registers commands and providers |
+| `src/hover.ts`                 | Hover provider for numeric literals |
+| `src/webview/index.ts`         | Assembles HTML/CSS/JS for the panel |
+| `src/webview/number/logic.ts`  | Number mode: safeEval, convertNumber, render functions |
+| `src/webview/ascii/logic.ts`   | ASCII mode: detection, encoding/decoding |
+| `src/webview/diff/logic.ts`    | Binary Diff mode: compare hex dumps, visual diff |
+| `src/webview/help/logic.ts`    | Interactive help modal with usage instructions |
+| `src/webview/shared/logic.ts`  | History, mode switching, copy utilities |
+| `src/webview/styles.ts`        | All CSS styles including help modal and diff viewer |
+| `src/webview/html.ts`          | Static HTML markup with mode containers |
 
 ## Architecture
+
 Extension Host (VS Code)
-├── Hover Provider (hover.ts) -> Shows tooltips on numbers
+├── Hover Provider (hover.ts)            -> Shows tooltips on numbers
 └── Webview Panel
-    ├── Number Mode (number/logic.ts) -> safeEval, conversions
-    ├── ASCII Mode (ascii/logic.ts) -> text ↔ codes
-    └── Shared (shared/logic.ts) -> history, mode switcher
+    ├── Number Mode (number/logic.ts)    -> safeEval, conversions
+    ├── ASCII Mode (ascii/logic.ts)      -> text ↔ codes
+    ├── Binary Diff Mode (diff/logic.ts) -> compare hex dumps
+    ├── Help Module (help/logic.ts)      -> interactive documentation
+    └── Shared (shared/logic.ts)         -> history, mode switcher
 
 ## Important Implementation Details
-
-### Short Form Literals (v0.0.6+)
-
-- Hex: `xFF` instead of `0xFF`
-- Binary: `b1010` instead of `0b1010`
-- Fully backward compatible with standard prefixes
-- Implemented in `safeEval()` regex patterns
 
 ### Number Mode (`number/logic.ts`)
 
 - **`safeEval(expr)`**: Converts 0x/0b literals -> decimal, validates with regex, executes via `new Function()`, returns float
+- **`handleNumberInputKeydown(event)`**: Auto-completes parentheses `()`, shift operators `<<` and `>>`
 - **`convertNumber()`**: Checks integer vs float, shows full UI for integers, DEC-only for floats
 - **`renderTypes()`, `renderBitGrid()`, `renderEndian()`**: Only called for integers
 
@@ -50,9 +51,29 @@ Extension Host (VS Code)
 - Bidirectional conversion
 - Character cards with click-to-copy
 
+### Binary Diff Mode (`diff/logic.ts`) - NEW in v0.0.6
+
+- **`smartHexParse(input)`**: Parses various hex formats (space-separated, 0x-prefixed, continuous, C-style escapes)
+- **`addBinaryRow(name, hexString)`**: Creates new row with parsed bytes
+- **`compareColumns()`**: Calculates per-column diff status (match/diff)
+- **`renderBinaryTable()`**: Renders interactive comparison table
+- **`toggleByteMark(id, col)`**: Cycles through mark colors (blue → violet → cyan → none)
+- **`handleBinaryKeyboard(event)`**: Keyboard shortcuts (Delete, Ctrl+Delete, Ctrl+Up/Down)
+- **Visual indicators**: Green (match), Red (diff), Yellow (missing), Blue/Purple/Cyan (manual marks)
+- **Multi-select**: Ctrl+Click to select multiple rows
+- **Export/Import**: Save/load rows as JSON
+
+### Help Module (`help/logic.ts`) - NEW in v0.0.6
+
+- **`showHelp()`**: Displays modal with usage instructions
+- **`switchHelpTab(mode)`**: Switches between Number/ASCII/Binary Diff help
+- **`updateHelpContent(mode)`**: Dynamically generates help content
+- Context-aware help (shows current mode by default)
+
 ### Hover Provider (`hover.ts`)
 
-- Regex: `/0x[0-9a-fA-F]+|0b[01]+|-?\d+(?:\.\d+)?/`
+- Regex: `/0x[0-9a-fA-F]+|x[0-9a-fA-F]+|0b[01]+|b[01]+|-?\d+(?:\.\d+)?/`
+- Supports short form literals (`xFF`, `b1010`)
 - Shows HEX/BIN only for integers, shows "N/A (float)" otherwise
 
 ## Development Commands
@@ -81,6 +102,7 @@ npm run publish      # Publish to marketplace (requires auth)
 ```
 
 ## Version History
+- **0.0.7**: 
 - **0.0.6**: Short form literals (xFF, b1010), persistent history, auto-focus
 - **0.0.5**: Floating point support, fixed webview issues
 - **0.0.4**: ASCII mode, type checker, bit visualizer, endianness

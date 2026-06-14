@@ -1,5 +1,50 @@
 # Change Log
 
+## [0.0.7] - 2026-06-14
+
+### Added
+
+- **Binary Diff Mode** - Compare multiple hex dumps byte by byte
+  - Visual diff highlighting (green = match, red = diff, yellow = missing)
+  - Support for multiple input formats (space-separated, 0x-prefixed, continuous, C-style escapes)
+  - Manual byte marks with click-to-cycle colors (blue -> violet -> cyan)
+  - Multi-row selection with Ctrl+Click
+  - Keyboard shortcuts: Delete (remove selected), Ctrl+Delete (clear all), Ctrl+Up/Down (reorder)
+  - Export/Import rows as JSON
+  - Column header indicators (● = all same, ◆ = has differences)
+
+- **Interactive Help System**
+  - Help button (?) in title bar opens modal window
+  - Three tabs with usage instructions for Number, ASCII, and Binary Diff modes
+  - Context-aware - opens on current mode by default
+  - Close via X button, Escape key, or click outside
+
+- **Auto-Completion for Number Mode**
+  - Type `(` -> automatically inserts `()` and places cursor inside
+  - Type `<` -> automatically inserts `<<` (shift left operator)
+  - Type `>` -> automatically inserts `>>` (shift right operator)
+  - Type `)` or second `>` -> skips over existing character
+
+### Changed
+
+- Mode switcher now includes Binary Diff button
+- `setMode()` function updated to support third mode
+- Webview now includes diff and help modules
+- History section hidden in Binary Diff mode for better UX
+
+### Fixed
+
+- None
+
+### Technical Details
+
+- New module: `src/webview/diff/logic.ts` - Binary Diff mode client-side JS
+- New module: `src/webview/help/logic.ts` - Interactive help modal
+- Updated `src/webview/html.ts` - Added title bar with help button, Binary Diff containers
+- Updated `src/webview/styles.ts` - Added styles for diff viewer and help modal
+- Updated `src/webview/index.ts` - Import and initialize new modules
+- Updated `src/webview/shared/logic.ts` - Extended mode switcher for three modes
+
 ## [0.0.6] - 2026-06-13
 
 ### Added

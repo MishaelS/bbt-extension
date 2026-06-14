@@ -15,8 +15,12 @@ bbt-extension/
 │   │   │   └── logic.ts            # History, mode switch, utilities
 │   │   ├── number/
 │   │   │   └── logic.ts            # Number mode JS
-│   │   └── ascii/
-│   │       └── logic.ts            # ASCII mode JS
+│   │   ├── ascii/
+│   │   │   └── logic.ts            # ASCII mode JS
+│   │   ├── diff/
+│   │   │   └── logic.ts            # Binary Diff mode JS
+│   │   └── help/
+│   │       └── logic.ts            # Help modal JS
 │   └── test/
 │       ├── suite/
 │       │   ├── index.ts            # ...
@@ -75,6 +79,21 @@ Registers three main components:
 #### `number/logic.ts` - safeEval expression evaluator, integer type grid, bit visualizer, endianness display
 
 #### `ascii/logic.ts` - hex/dec code detection, text encoding/decoding, character card rendering
+
+#### `diff/logic.ts` - Binary Diff mode JS
+- **smartHexParse()** - parsing of various hex formats (spaces, 0x, commas, solid string, C-style escapes)
+- **addBinaryRow()** - creating a new string with bytes
+- **compareColumns()** - calculation of the status of each column (match/diff)
+- **renderBinaryTable()** - illuminated comparison table render
+- **toggleByteMark()** - cycle of color labels (blue → violet → cyan → none)
+- **handleBinaryKeyboard()** - keyboard shortcuts (Delete, Ctrl+Delete, Ctrl+Up/Down)
+- Export/import to JSON
+
+#### `help/logic.ts` - Help modal JS
+- **ShowHelp()** - opens a modal window with hints
+- **switchHelpTab()** - switch between tabs `Number/ASCII/Binary Diff`
+- **updateHelpContent()** - generation of contextual help
+- Closing by Escape or clicking outside the window
 
 #### `logic.ts` - Client-side JavaScript with these modules:
 
@@ -144,6 +163,54 @@ b 1 0 1 0    // spaces allowed
 Regex patterns in `safeEval()`:
 - Hex short: `/(?:^|[^a-fA-F0-9])x([0-9a-fA-F]+)/gi`
 - Binary short: `/(?:^|[^01])b([01]+)/gi`
+
+### Auto-Completion (v0.0.7+)
+
+The 'handleNumberInputKeydown()` function in `number/logic.ts' implements:
+
+1. **Brackets** - input `(` automatically creates `()` and puts the cursor inside
+2. **Shifts** - entering `<` creates `<<`, entering `>` creates `>>`, the cursor after the operator
+3. **Skip** - if the cursor is in front of `)` or `>`, the re-entry steps over the character
+
+## Binary Diff Mode
+
+### Supported input formats
+- `DE AD BE EF' - spaces
+- `0xDE,0xAD,0xBE,0xEF` - 0x prefix and commas
+- `DEADBEEF` is a solid string
+- `\xDE\xAD\xBE\xEF` - C-style escapes
+- `DE-AD-BE-EF` - hyphens
+
+### Keyboard shortcuts
+|   Combination   |  Action  |
+|-----------------|----------|
+| `Delete`        | Delete selected lines |
+| `Ctrl + Delete` | Delete all lines |
+| `Ctrl + Up`     | Move the selected lines up |
+| `Ctrl + Down`   | Move the selected lines down |
+
+### Color scheme
+
+|       Color       |   Value   |
+|-------------------|-----------|
+| Green (match)     | Byte matches all lines |
+| Red (diff)        | The byte is different from the others |
+| Yellow (missing)  | The byte is missing in this line |
+| Blue/Violet/Blue  | Manual labels (cycle by click) |
+
+### Interacting with bytes
+- **Left click** - cyclic switching of color labels
+- **Right click** - clearing the label
+- Hover shows decimal and binary representation
+
+## Help Modal
+
+Online help, accessible by clicking `?` in the title.
+
+- Contextual - opens in the current mode
+- Three tabs - Number, ASCII, Binary Diff
+- Contains tables with formats, operators, and color scheme
+- Close: click on `X', Escape, click outside the window
 
 ## Webview Communication
 

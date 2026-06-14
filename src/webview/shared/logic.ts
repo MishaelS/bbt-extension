@@ -22,25 +22,34 @@ var _asciiPushTimer  = null;
 var _numLastPushed   = null;
 var _asciiLastPushed = null;
 var _autoSave        = false; // overridden by VS Code on load via postMessage
+var _storagePrefix   = 'bbt:no-workspace';
 
 // Storage keys
-var STORAGE_KEYS = {
-    NUM_HISTORY  : 'bbt_num_history',
-    ASCII_HISTORY: 'bbt_ascii_history'
-};
+function getStorageKeys()
+{
+    return {
+        NUM_HISTORY  : _storagePrefix + ':num_history',
+        ASCII_HISTORY: _storagePrefix + ':ascii_history'
+    };
+}
 
 // Load history from localStorage
 function loadHistoryFromStorage()
 {
     try {
-        var savedNumHistory = localStorage.getItem(STORAGE_KEYS.NUM_HISTORY);
+        var keys = getStorageKeys();
+        var savedNumHistory = localStorage.getItem(keys.NUM_HISTORY);
         if (savedNumHistory) {
             _numHistory = JSON.parse(savedNumHistory);
+        } else {
+            _numHistory = [];
         }
 
-        var savedAsciiHistory = localStorage.getItem(STORAGE_KEYS.ASCII_HISTORY);
+        var savedAsciiHistory = localStorage.getItem(keys.ASCII_HISTORY);
         if (savedAsciiHistory) {
             _asciiHistory = JSON.parse(savedAsciiHistory);
+        } else {
+            _asciiHistory = [];
         }
 
         renderHistory();
@@ -53,8 +62,9 @@ function loadHistoryFromStorage()
 function saveHistoryToStorage()
 {
     try {
-        localStorage.setItem(STORAGE_KEYS.NUM_HISTORY, JSON.stringify(_numHistory));
-        localStorage.setItem(STORAGE_KEYS.ASCII_HISTORY, JSON.stringify(_asciiHistory));
+        var keys = getStorageKeys();
+        localStorage.setItem(keys.NUM_HISTORY, JSON.stringify(_numHistory));
+        localStorage.setItem(keys.ASCII_HISTORY, JSON.stringify(_asciiHistory));
     } catch (e) {
         console.error('Failed to save history:', e);
     }
@@ -84,7 +94,7 @@ function clearHistory()
     // Return focus to the active input field
     if (_currentMode === 'number') {
         document.getElementById('numInput').focus();
-    } else {
+    } else if (_currentMode === 'ascii') {
         document.getElementById('asciiInput').focus();
     }
 }
@@ -124,7 +134,7 @@ function loadFromHistory(i)
         document.getElementById('numInput').value = item.expr;
         convertNumber(false);
         document.getElementById('numInput').focus();  // Add focus
-    } else {
+    } else if (item.mode === 'ascii') {
         setMode('ascii');
         document.getElementById('asciiInput').value = item.expr;
         convertAscii();
@@ -141,7 +151,7 @@ function saveCurrentToHistory()
             _numLastPushed = raw;
             addToHistory(raw, dec, 'number');
         }
-    } else {
+    } else if (_currentMode === 'ascii') {
         var input  = document.getElementById('asciiInput').value;
         var result = document.getElementById('asciiTextVal').textContent;
         if (input.trim() && result !== '—') {
@@ -159,24 +169,38 @@ var _currentMode = 'number';
 
 function setMode(mode)
 {
+    if (mode !== 'number' && mode !== 'ascii' && mode !== 'diff') {
+        mode = 'number';
+    }
+
     _currentMode = mode;
 
     document.getElementById('modeNumber').classList.remove('active');
     document.getElementById('modeAscii').classList.remove('active');
-    document.getElementById(mode === 'number' ? 'modeNumber' : 'modeAscii').classList.add('active');
+    document.getElementById('modeDiff').classList.remove('active');
 
     var isNumber = mode === 'number';
-    document.getElementById('numberMode').style.display    = isNumber ? 'block' : 'none';
-    document.getElementById('asciiMode').style.display     = isNumber ? 'none'  : 'block';
-    document.getElementById('numberResults').style.display = isNumber ? 'block' : 'none';
-    document.getElementById('asciiResults').style.display  = isNumber ? 'none'  : 'block';
+    var isAscii  = mode === 'ascii';
+    var isDiff   = mode === 'diff';
+
+    document.getElementById(isNumber ? 'modeNumber' : isAscii ? 'modeAscii' : 'modeDiff').classList.add('active');
+
+    document.getElementById('numberMode').style.display     = isNumber ? 'block' : 'none';
+    document.getElementById('asciiMode').style.display      = isAscii  ? 'block' : 'none';
+    document.getElementById('diffMode').style.display       = isDiff   ? 'block' : 'none';
+    document.getElementById('numberResults').style.display  = isNumber ? 'block' : 'none';
+    document.getElementById('asciiResults').style.display   = isAscii  ? 'block' : 'none';
+    document.getElementById('diffResults').style.display    = isDiff   ? 'block' : 'none';
+    document.getElementById('historySection').style.display = isDiff   ? 'none'  : 'block';
 
     if (isNumber) { 
         convertNumber(); 
         document.getElementById('numInput').focus();  // Set focus to number input after mode switch
-    } else { 
+    } else if (isAscii) { 
         convertAscii();
         document.getElementById('asciiInput').focus();  // Set focus to ascii input after mode switch
+    } else {
+        renderBinaryTable();
     }
 }
 
@@ -214,9 +238,15 @@ window.addEventListener('message', function(event) {
     var msg = event.data;
     if (msg.type === 'settings') {
         _autoSave = !!msg.autoSave;
+        if (msg.workspaceKey) {
+            _storagePrefix = 'bbt:' + msg.workspaceKey;
+            loadHistoryFromStorage();
+        }
     }
 });
 
+initBinaryDiff();
+loadHistoryFromStorage();
 convertNumber();
 
 // Set focus to number input on page load

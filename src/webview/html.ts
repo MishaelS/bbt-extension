@@ -5,12 +5,16 @@
  */
 export function getMarkup(): string {
     return `
-        <h1>BBT (Byte-Bit-Tool)</h1>
+        <div class="title-bar">
+            <h1>BBT (Byte-Bit-Tool)</h1>
+            <button class="help-btn" onclick="showHelp()" title="Help">?</button>
+        </div>
 
         <!-- Mode switcher -->
         <div class="mode-switcher">
             <button class="mode-btn active" id="modeNumber" onclick="setMode('number')">Number</button>
             <button class="mode-btn"        id="modeAscii"  onclick="setMode('ascii')">ASCII</button>
+            <button class="mode-btn"        id="modeDiff"   onclick="setMode('diff')">Binary Diff</button>
         </div>
 
         <!-- Number mode: input -->
@@ -21,7 +25,7 @@ export function getMarkup(): string {
                     id="numInput"
                     placeholder="Enter a number or expression"
                     oninput="convertNumber()"
-                    onkeydown="if(event.key==='Enter'){saveCurrentToHistory();}"
+                    onkeydown="handleNumberInputKeydown(event); if(event.key==='Enter'){saveCurrentToHistory();}"
                     autofocus
                 />
             </div>
@@ -40,6 +44,25 @@ export function getMarkup(): string {
                 />
             </div>
             <div class="error-msg" id="asciiErrorMsg"></div>
+        </div>
+
+        <!-- Binary Diff mode: input -->
+        <div id="diffMode" style="display:none">
+            <div class="binary-input-panel">
+                <input
+                    type="text"
+                    id="binaryNameInput"
+                    class="binary-name-input"
+                    placeholder="Row name"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();promptAddBinaryRow();}"
+                />
+                <textarea
+                    id="binaryHexInput"
+                    class="binary-hex-input"
+                    placeholder="Paste hex bytes: DE AD BE EF, 0xDEADBEEF, \\xDE\\xAD..."
+                    onkeydown="handleBinaryHexInputKeydown(event)"
+                ></textarea>
+            </div>
         </div>
 
         <!-- Number mode: results -->
@@ -120,8 +143,16 @@ export function getMarkup(): string {
             </div>
         </div>
 
+        <!-- Binary Diff mode: results -->
+        <div id="diffResults" style="display:none">
+            <div class="section">
+                <div class="section-title">Binary Diff Viewer</div>
+                <div id="binaryTable"></div>
+            </div>
+        </div>
+
         <!-- History -->
-        <div class="section">
+        <div class="section" id="historySection">
             <div class="section-title">
                 History
                 <button class="history-clear" onclick="clearHistory()">clear</button>
