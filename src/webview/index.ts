@@ -15,6 +15,7 @@ import { getAsciiLogic } from './ascii/logic';
 import { getDiffLogic } from './diff/logic';
 import { getHelpLogic } from './help/logic';
 import { getMarkup } from './html';
+import { getKittenLogic } from './kitten/logic';
 import { getNumberLogic } from './number/logic';
 import { getSharedLogic } from './shared/logic';
 import { getAllStyles } from './styles';
@@ -36,7 +37,22 @@ export function buildWebviewDocument(): string {
             ${getAsciiLogic()}
             ${getDiffLogic()}
             ${getHelpLogic()}
+            ${getKittenLogic()}
             ${getSharedLogic()}
+
+            // Initialize kitten with resource path
+            // This will be set by VS Code extension
+            (function() {
+                // Wait for VS Code to provide resource path
+                window.addEventListener('message', function(event) {
+                    const msg = event.data;
+                    if (msg.type === 'settings' && msg.kittenResourcePath) {
+                        if (typeof initKitten === 'function') {
+                            initKitten(msg.kittenResourcePath);
+                        }
+                    }
+                });
+            })();
         </script>
     </body>
 </html>

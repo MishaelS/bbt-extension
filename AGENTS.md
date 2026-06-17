@@ -12,18 +12,19 @@ VS Code extension for developers, reverse engineers, and security researchers. P
 
 ## Key Files
 
-|              File              | Purpose |
-|--------------------------------|---------|
-| `src/extension.ts`             | Entry point, registers commands and providers |
-| `src/hover.ts`                 | Hover provider for numeric literals |
-| `src/webview/index.ts`         | Assembles HTML/CSS/JS for the panel |
-| `src/webview/number/logic.ts`  | Number mode: safeEval, convertNumber, render functions |
-| `src/webview/ascii/logic.ts`   | ASCII mode: detection, encoding/decoding |
-| `src/webview/diff/logic.ts`    | Binary Diff mode: compare hex dumps, visual diff |
-| `src/webview/help/logic.ts`    | Interactive help modal with usage instructions |
-| `src/webview/shared/logic.ts`  | History, mode switching, copy utilities |
-| `src/webview/styles.ts`        | All CSS styles including help modal and diff viewer |
-| `src/webview/html.ts`          | Static HTML markup with mode containers |
+|              File              |                             Purpose                            |
+|--------------------------------|----------------------------------------------------------------|
+| `src/extension.ts`             | Entry point, registers commands and providers                  |
+| `src/hover.ts`                 | Hover provider for numeric literals                            |
+| `src/webview/index.ts`         | Assembles HTML/CSS/JS for the panel                            |
+| `src/webview/number/logic.ts`  | Number mode: safeEval, convertNumber, render functions         |
+| `src/webview/ascii/logic.ts`   | ASCII mode: detection, encoding/decoding                       |
+| `src/webview/diff/logic.ts`    | Binary Diff mode: compare hex dumps, visual diff               |
+| `src/webview/help/logic.ts`    | Interactive help modal with usage instructions                 |
+| `src/webview/shared/logic.ts`  | History, mode switching, copy utilities                        |
+| `src/webview/styles.ts`        | All CSS styles including help modal and diff viewer            |
+| `src/webview/html.ts`          | Static HTML markup with mode containers                        |
+| `src/webview/kitten/logic.ts`  | Kitten animation: FSM-based keyboard response, floating window |
 
 ## Architecture
 
@@ -31,9 +32,10 @@ Extension Host (VS Code)
 ├── Hover Provider (hover.ts)            -> Shows tooltips on numbers
 └── Webview Panel
     ├── Number Mode (number/logic.ts)    -> safeEval, conversions
-    ├── ASCII Mode (ascii/logic.ts)      -> text ↔ codes
+    ├── ASCII Mode (ascii/logic.ts)      -> text <-> codes
     ├── Binary Diff Mode (diff/logic.ts) -> compare hex dumps
     ├── Help Module (help/logic.ts)      -> interactive documentation
+    ├── Kitten Module (kitten/logic.ts)  -> floating animation
     └── Shared (shared/logic.ts)         -> history, mode switcher
 
 ## Important Implementation Details
@@ -70,6 +72,17 @@ Extension Host (VS Code)
 - **`updateHelpContent(mode)`**: Dynamically generates help content
 - Context-aware help (shows current mode by default)
 
+### Kitten Module (`kitten/logic.ts`) - NEW in v0.0.8
+
+- **FSM-based animation**: Finite State Machine for smooth, predictable paw animations
+- **`detectHand(key)`**: Identifies left/right hand based on key (supports EN/RU layouts)
+- **`enterState(next)`**: Transitions between IDLE, LEFT_HIT, RIGHT_HIT, BOTH_HIT states
+- **`handleHand(hand)`**: Main keystroke handler for kitten animation
+- **Floating window**: Positioned above all VS Code tabs and status bar
+- **Configurable**: `byteBitTool.kittenEnabled` setting to enable/disable
+- **Responsive**: 80ms frame duration for snappy response
+- **Keyboard detection**: Tracks active keys using Set for O(1) performance
+
 ### Hover Provider (`hover.ts`)
 
 - Regex: `/0x[0-9a-fA-F]+|x[0-9a-fA-F]+|0b[01]+|b[01]+|-?\d+(?:\.\d+)?/`
@@ -102,13 +115,15 @@ npm run publish      # Publish to marketplace (requires auth)
 ```
 
 ## Version History
-- **0.0.7**: 
+- **0.0.8**: Floating kitten animation with FSM, global keyboard tracking
+- **0.0.7**: Binary Diff mode, Interactive Help, Auto-completion
 - **0.0.6**: Short form literals (xFF, b1010), persistent history, auto-focus
 - **0.0.5**: Floating point support, fixed webview issues
 - **0.0.4**: ASCII mode, type checker, bit visualizer, endianness
 - **0.0.2**: Initial release
 
 ## Configuration
-| Setting | Default | Description |
-|---------|---------|-------------|
-| byteBitTool.autoSave | false | Auto-save calculations to history |
+|          Setting          | Default |                       Description                       |
+|---------------------------|---------|---------------------------------------------------------|
+| byteBitTool.autoSave      | false   | Auto-save calculations to history                       |
+| byteBitTool.kittenEnabled | true    | Enable kitten animation that responds to keyboard input |

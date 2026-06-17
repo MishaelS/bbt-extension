@@ -59,7 +59,7 @@ export function getMarkup(): string {
                 <textarea
                     id="binaryHexInput"
                     class="binary-hex-input"
-                    placeholder="Paste hex bytes: DE AD BE EF, 0xDEADBEEF, \\xDE\\xAD..."
+                    placeholder="Paste hex bytes"
                     onkeydown="handleBinaryHexInputKeydown(event)"
                 ></textarea>
             </div>

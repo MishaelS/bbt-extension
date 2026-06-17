@@ -447,7 +447,7 @@ const binaryDiffStyles = `
         display: grid;
         grid-template-columns: 128px minmax(0, 1fr);
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         align-items: stretch;
         background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
         border: 1px solid var(--vscode-panel-border, #3c3c3c);
@@ -859,6 +859,82 @@ const helpStyles = `
     }
 `;
 
+/* Kitten floating window */
+const kittenStyles = `
+    .kitten-floating {
+        position: fixed;
+        bottom: -18px;
+        right: 16px;
+        z-index: 999999;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        transition: transform 0.1s ease;
+    }
+
+    .kitten-floating:hover {
+        transform: scale(1.02);
+    }
+
+    .kitten-floating:active {
+        transform: scale(0.98);
+    }
+
+    .kitten-image {
+        width: 120px;
+        height: 120px;
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;
+        border-radius: 0;
+        background: transparent;
+        border: none;
+        padding: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    .kitten-meow {
+        position: absolute;
+        top: -20px;
+        right: 0;
+        font-size: 10px;
+        background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
+        padding: 2px 6px;
+        border-radius: 12px;
+        border: 1px solid var(--vscode-panel-border, #3c3c3c);
+        color: var(--vscode-terminal-ansiGreen, #4ec9b0);
+        animation: kittenMeowFade 0.5s ease-out;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    @keyframes kittenMeowFade {
+        0% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+    }
+
+    @media (max-width: 400px) {
+        .kitten-floating {
+            bottom: 2px;
+            right: 8px;
+        }
+
+        .kitten-image {
+            width: 90px;
+            height: 90px;
+        }
+    }
+`;
+
 /* History */
 const historyStyles = `
     .history-list {
@@ -953,6 +1029,7 @@ export function getAllStyles(): string {
         endianStyles,
         binaryDiffStyles,
         helpStyles,
+        kittenStyles,
         historyStyles,
     ].join('\n');
 }

@@ -1,5 +1,31 @@
 # Change Log
 
+## [0.0.8] - 2026-06-17
+
+### Added
+
+- **Floating Kitten Animation** 🐱
+  - Cute bongo cat that responds to keyboard input with smooth FSM-based animations
+  - Shows different paw positions based on which hand typed (left/right/both)
+  - Sleeping frame when hovering with mouse
+  - Floating window positioned above all VS Code tabs and status bar
+  - Configurable via `byteBitTool.kittenEnabled` setting
+  - Keyboard detection supports both English and Russian layouts
+
+### Changed
+
+- **Global Keyboard Tracking** - Kitten now responds to typing anywhere in VS Code (not just BBT panel)
+- **FSM-based Animation** - Finite State Machine ensures smooth, predictable animations without glitches
+- **Performance Optimizations** - SVG frames pre-loaded once, not rebuilt on every keystroke
+
+### Technical Details
+
+- New module: `src/webview/kitten/logic.ts` - FSM-based animation controller
+- New styles: `kittenStyles` in `src/webview/styles.ts` for floating window
+- Extension now broadcasts keystroke events to all active webviews
+- Active key tracking with `Set` for O(1) lookup performance
+- Frame duration: 80ms for snappy response
+
 ## [0.0.7] - 2026-06-14
 
 ### Added

@@ -89,7 +89,8 @@ function smartHexParse(input)
 function addBinaryRow(name, hexString)
 {
     var rowNumber = _binaryRowCounter++;
-    var displayName = name || ('Row ' + rowNumber);
+    // var displayName = name || ('Row ' + rowNumber);
+    var displayName = name;
     var input = hexString || '';
 
     var row = {

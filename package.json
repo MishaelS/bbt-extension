@@ -2,7 +2,7 @@
   "name": "byte-bit-tool",
   "displayName": "Byte Bit Tool",
   "description": "Convert numbers between DEC, HEX and BIN with bitwise operations support",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "mishaels",
   "author": {
     "name": "MishaelS",
@@ -41,6 +41,11 @@
         "type": "boolean",
         "default": false,
         "description": "Automatically save calculations to history while typing. When disabled, press Enter to save."
+      },
+      "byteBitTool.kittenEnabled": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable kitten animation that responds to keyboard input"
       }
     }
   },
@@ -51,6 +56,12 @@
         "title": "Open Byte Bit Tool",
         "category": "Byte Bit Tool",
         "icon": "$(symbol-number)"
+      },
+      {
+        "command": "byte-bit-tool.showKitten",
+        "title": "Show/Hide Kitten",
+        "category": "Byte Bit Tool",
+        "icon": "$(panda)"
       }
     ],
     "viewsContainers": {
