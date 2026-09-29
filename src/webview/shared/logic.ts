@@ -3,9 +3,9 @@
  * Shared client-side JS: history, mode switcher, copy, escaping.
  *
  * Sections:
- *   1. History     — unified history for Number and ASCII modes
- *   2. Mode switch — setMode(), toggles visible panels
- *   3. Utilities   — copyVal(), escHtml()
+ *   1. History     - unified history for Number and ASCII modes
+ *   2. Mode switch - setMode(), toggles visible panels
+ *   3. Utilities   - copyVal(), escHtml()
  */
 export function getSharedLogic(): string
 {
@@ -112,14 +112,18 @@ function renderHistory()
     window._combinedHistory = combined;
 
     el.innerHTML = combined.map(function(h, i) {
-        var prefix        = h.mode === 'number' ? '[NUM] ' : '[ASC] ';
+        var modeLabel     = h.mode === 'number' ? 'NUM' : 'ASC';
+        var modeClass     = h.mode === 'number' ? 'number' : 'ascii';
         var displayResult = h.mode === 'number'
             ? h.result
             : '"' + (h.result.length > 30 ? h.result.slice(0, 27) + '...' : h.result) + '"';
 
         return '<div class="history-item" onclick="loadFromHistory(' + i + ')">' +
-            '<span class="history-expr">'   + prefix + escHtml(h.expr)   + '</span>' +
-            '<span class="history-result">-> ' + escHtml(displayResult)  + '</span>' +
+            '<div class="history-expression-row">' +
+                '<span class="history-mode ' + modeClass + '">' + modeLabel + '</span>' +
+                '<span class="history-expr">' + escHtml(h.expr) + '</span>' +
+            '</div>' +
+            '<div class="history-result">' + escHtml(displayResult) + '</div>' +
         '</div>';
     }).join('');
 }
@@ -147,14 +151,14 @@ function saveCurrentToHistory()
     if (_currentMode === 'number') {
         var raw = document.getElementById('numInput').value.trim();
         var dec = document.getElementById('decVal').textContent;
-        if (raw && dec !== '—') {
+        if (raw && dec !== '-') {
             _numLastPushed = raw;
             addToHistory(raw, dec, 'number');
         }
     } else if (_currentMode === 'ascii') {
         var input  = document.getElementById('asciiInput').value;
         var result = document.getElementById('asciiTextVal').textContent;
-        if (input.trim() && result !== '—') {
+        if (input.trim() && result !== '-') {
             _asciiLastPushed = input;
             addToHistory(input, result, 'ascii');
         }
@@ -211,7 +215,7 @@ function setMode(mode)
 function copyVal(id, btn)
 {
     var text = document.getElementById(id).textContent;
-    if (text === '—') { return; }
+    if (text === '-') { return; }
 
     navigator.clipboard.writeText(text);
 

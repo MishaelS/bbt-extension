@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-0.0.7-blue.svg)](https://github.com/MishaelS/bbt-extension/releases)
 
-Byte Bit Tool is a VS Code extension for developers, reverse engineers, and security researchers. Convert numbers between decimal, hexadecimal, and binary, evaluate arithmetic and bitwise expressions, inspect ASCII codes, and compare hex dumps — directly in your editor.
+Byte Bit Tool is a VS Code extension for developers, reverse engineers, and security researchers. Convert numbers between decimal, hexadecimal, and binary, evaluate arithmetic and bitwise expressions, inspect ASCII codes, and compare hex dumps - directly in your editor.
 
 ## Screenshots
 
@@ -31,25 +31,30 @@ Number & ASCII mode demonstration.
 ## Features
 
 ### Number Mode
-Expression evaluation with support for DEC (42), HEX (0xFF, xFF), and BIN (0b1010, b1010) literals.
+Expression evaluation with support for DEC (42), HEX (0xFF, xFF), and BIN (0b1010, b1010) literals. Integer calculations use arbitrary precision, so values beyond JavaScript's safe integer range remain exact.
 
 | Category   | Operators |
 |------------|-----------|
 | Arithmetic | `+` `-` `*` `/` `%` |
 | Bitwise    | `&` `\|` `^` `~` `<<` `>>` `>>>` |
+| Comparison | `<` `<=` `>` `>=` `==` `!=` `===` `!==` |
+| Boolean    | `&&` `\|\|` `!` |
 | Grouping   | `(` `)` |
 
+Enter up to 50 independent expressions separated by commas, for example: `1 + 2, 0x10, 5 > 3`.
+
 **Auto-Completion:**
-- Type `(` → automatically inserts `()` with cursor inside
-- Type `<` → inserts `<<` operator
-- Type `>` → inserts `>>` operator
+- Type `(` -> automatically inserts `()` with cursor inside
+- Type `)` over an existing closing parenthesis to move past it
+- Enter shift operators `<<` and `>>` explicitly
 
 **Output Features:**
 - **DEC** - Decimal result
 - **HEX** - Hexadecimal with byte padding
 - **BIN** - Binary with byte grouping (8 bits per group)
-- **Integer Types** - Shows which integer types (int8/16/32, uint8/16/32) the value fits into
-- **Bit Visualization** - Visual representation of bits (8/16/32 bits)
+- **Boolean Result** - Shows `true` or `false` for comparisons and logical expressions
+- **Integer Types** - Shows which integer types (int8/16/32/64, uint8/16/32/64) the value fits into
+- **Bit Visualization** - Visual representation of values up to 256 bits
 - **Endianness** - Big/Little Endian byte order for multi-byte values
 
 ### ASCII Mode
@@ -76,12 +81,12 @@ Compare multiple binary/hex strings byte by byte.
 - `DE-AD-BE-EF` - With dashes
 
 **Keyboard Shortcuts:**
-| Shortcut | Action |
-|----------|--------|
-| `Delete` | Remove selected row(s) |
-| `Ctrl+Delete` | Remove all rows |
-| `Ctrl+Up/Down` | Move selected rows |
-| `Ctrl+Click` | Multi-select rows |
+|    Shortcut    |         Action         |
+|----------------|------------------------|
+| `Delete`       | Remove selected row(s) |
+| `Ctrl+Delete`  | Remove all rows        |
+| `Ctrl+Up/Down` | Move selected rows     |
+| `Ctrl+Click`   | Multi-select rows      |
 
 **Features:**
 - Export/Import rows as JSON
@@ -95,6 +100,20 @@ Click the `?` button in the title bar to open interactive help with usage instru
 ### Hover Provider
 Hover over any number in your code to see conversions. Works with DEC, HEX, and BIN literals (including short forms). Output is colored for readability.
 
+### Text Highlights
+
+Color selected editor text to visually separate important fragments during analysis or review. Highlights are session-scoped and automatically follow edits in the document.
+
+1. Select one or more text ranges, or place the cursor on a word.
+2. Open the editor context menu or Command Palette.
+3. Run **Byte Bit Tool: Highlight Selected Text**.
+4. Choose Yellow, Green, Blue, Pink, Purple, or Red.
+
+Additional commands:
+
+- **Clear Highlight from Selected Text** — removes color only from the selected ranges or word.
+- **Clear All Text Highlights in File** — removes every BBT highlight from the active file.
+
 ### Calculation History
 Last 20 calculations are saved. Click any history entry to restore the expression. Clear button resets history. Auto-save can be enabled in settings.
 
@@ -104,7 +123,7 @@ Last 20 calculations are saved. Click any history entry to restore the expressio
 1. Download the latest `.vsix` file from [Releases](https://github.com/MishaelS/bbt-extension/releases)
 2. Open VS Code
 3. Go to Extensions (Ctrl+Shift+X)
-4. Click "..." menu → "Install from VSIX..."
+4. Click "..." menu -> "Install from VSIX..."
 5. Select the downloaded file
 
 ### From Source
@@ -134,24 +153,24 @@ code --install-extension byte-bit-tool-*.vsix
 
 - BBT icon in the Activity Bar
 - Ctrl+Shift+B (Windows/Linux) or Cmd+Shift+B (Mac)
-- Command Palette → "Byte Bit Tool: Open"
+- Command Palette -> "Byte Bit Tool: Open"
 
 ### Number Mode Examples
 
-| Expression           | Result DEC | Result HEX | Result BIN |
-|----------------------|------------|------------|------------|
-| `xFF + 1`            | 256        | 0x100      | 0b100000000
-| `b1010 & b1100`      | 8          | 0x8        | 0b1000
-| `xF0 >> 4`           | 15         | 0xF        | 0b1111
-| `(x10 << 8) \| 0x31` | 4145       | 0x1031     | 0b1000000110001
+| Expression           | Result DEC | Result HEX |   Result BIN    |
+|----------------------|------------|------------|-----------------|
+| `xFF + 1`            | 256        | 0x100      | 0b100000000     |
+| `b1010 & b1100`      | 8          | 0x8        | 0b1000          |
+| `xF0 >> 4`           | 15         | 0xF        | 0b1111          |
+| `(x10 << 8) \| 0x31` | 4145       | 0x1031     | 0b1000000110001 |
 
 ### ASCII Mode Examples
 
-| Expression                  | Result TEXT | Result HEX               | Result DEC |
-|-----------------------------|-------------|--------------------------|------------|
-| `Hello`                     |             | 0x48 0x65 0x6C 0x6C 0x6F | 72 101 108 108 111
-| `0x48 0x65 0x6C 0x6C 0x6F`  | Hello       |                          |
-| `72 101 108 108 111`        | Hello       |                          |
+| Expression                  | Result TEXT | Result HEX               |     Result DEC     |
+|-----------------------------|-------------|--------------------------|--------------------|
+| `Hello`                     |             | 0x48 0x65 0x6C 0x6C 0x6F | 72 101 108 108 111 |
+| `0x48 0x65 0x6C 0x6C 0x6F`  | Hello       |                          |                    |
+| `72 101 108 108 111`        | Hello       |                          |                    |
 
 ### Binary Diff Mode Examples
 
@@ -177,9 +196,9 @@ Last 20 calculations are saved automatically when auto-save is enabled in settin
 
 ## Settings
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `byteBitTool.autoSave` | `false` | Automatically save calculations to history while typing. When disabled, press Enter to save.
+|          Setting       | Default |                                           Description                                        |
+|------------------------|---------|----------------------------------------------------------------------------------------------|
+| `byteBitTool.autoSave` | `false` | Automatically save calculations to history while typing. When disabled, press Enter to save. |
 
 ## Keyboard Shortcuts
 

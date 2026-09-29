@@ -3,12 +3,12 @@
  * Client-side JS for ASCII mode.
  *
  * Sections:
- *   1. Detection  — isHexCodes / isDecCodes
- *   2. Parsing    — normalizeHexCodes / smartParseHex
- *   3. Decoding   — decodeHexToText / decodeDecToText
- *   4. Encoding   — encodeTextToCodes
- *   5. Rendering  — renderCharCards / copyCharCode
- *   6. convertAscii — main entry point
+ *   1. Detection  - isHexCodes / isDecCodes
+ *   2. Parsing    - normalizeHexCodes / smartParseHex
+ *   3. Decoding   - decodeHexToText / decodeDecToText
+ *   4. Encoding   - encodeTextToCodes
+ *   5. Rendering  - renderCharCards / copyCharCode
+ *   6. convertAscii - main entry point
  */
 export function getAsciiLogic(): string
 {
@@ -203,9 +203,9 @@ function copyCharCode(code)
 
 function resetAsciiResults()
 {
-    document.getElementById('asciiTextVal').textContent  = '—';
-    document.getElementById('asciiHexVal').textContent   = '—';
-    document.getElementById('asciiDecVal').textContent   = '—';
+    document.getElementById('asciiTextVal').textContent  = '-';
+    document.getElementById('asciiHexVal').textContent   = '-';
+    document.getElementById('asciiDecVal').textContent   = '-';
     document.getElementById('asciiHexChars').innerHTML   = '';
     document.getElementById('asciiDecChars').innerHTML   = '';
     document.getElementById('asciiDirection').textContent = '';

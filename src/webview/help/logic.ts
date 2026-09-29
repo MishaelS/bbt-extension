@@ -100,7 +100,7 @@ function updateHelpContent(mode)
     if (mode === 'number') {
         content = '<div class="help-section">' +
             '<h3>Number Mode - Expression Calculator</h3>' +
-            '<p>Evaluate arithmetic and bitwise expressions with support for decimal, hexadecimal, and binary numbers.</p>' +
+            '<p>Evaluate arithmetic, bitwise, comparison, and boolean expressions with exact large-integer support.</p>' +
 
             '<h4>Supported Number Formats</h4>' +
             '<table class="help-table">' +
@@ -114,16 +114,20 @@ function updateHelpContent(mode)
             '<table class="help-table">' +
                 '<tr><th>Type</th><th>Operators</th><th>Example</th></tr>' +
                 '<tr><td>Arithmetic</td><td>+ - * / %</td><td>5 + 3 * 2</td></tr>' +
-                '<tr><td>Bitwise</td><td>& | ^ ~ << >></td><td>0xFF & 0x0F</td></tr>' +
+                '<tr><td>Bitwise</td><td>&amp; | ^ ~ &lt;&lt; &gt;&gt; &gt;&gt;&gt;</td><td>0xFF &amp; 0x0F</td></tr>' +
+                '<tr><td>Comparison</td><td>&lt; &lt;= &gt; &gt;= == != === !==</td><td>0xFF &gt; 128</td></tr>' +
+                '<tr><td>Boolean</td><td>&amp;&amp; || !</td><td>true &amp;&amp; !false</td></tr>' +
                 '<tr><td>Grouping</td><td>( )</td><td>(5 + 3) * 2</td></tr>' +
             '</table>' +
+
+            '<h4>Multiple Expressions</h4>' +
+            '<p>Separate up to 50 independent expressions with commas: <code>1 + 2, 0x10, 5 &gt; 3</code>.</p>' +
 
             '<h4>Auto-Completion</h4>' +
             '<ul>' +
                 '<li>Type "(" - automatically inserts () and places cursor inside</li>' +
-                '<li>Type "<" - automatically inserts << (shift left operator)</li>' +
-                '<li>Type ">" - automatically inserts >> (shift right operator)</li>' +
                 '<li>Type ")" - skips over existing closing parenthesis</li>' +
+                '<li>Type shift operators &lt;&lt; and &gt;&gt; explicitly</li>' +
             '</ul>' +
 
             '<h4>Output Features</h4>' +
@@ -131,9 +135,10 @@ function updateHelpContent(mode)
                 '<li>DEC - Decimal result</li>' +
                 '<li>HEX - Hexadecimal with byte padding</li>' +
                 '<li>BIN - Binary with byte grouping (8 bits per group)</li>' +
-                '<li>Integer Types - Shows which integer types the value fits into</li>' +
-                '<li>Bit Visualization - Visual representation of bits (8/16/32 bits)</li>' +
+                '<li>Integer Types - Shows which integer types up to int64/uint64 the value fits into</li>' +
+                '<li>Bit Visualization - Visual representation of values up to 256 bits</li>' +
                 '<li>Endianness - Big/Little Endian byte order for multi-byte values</li>' +
+                '<li>Large integers - Preserved exactly with arbitrary precision</li>' +
             '</ul>' +
 
             '<h4>Tips</h4>' +

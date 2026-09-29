@@ -1,30 +1,21 @@
 # Change Log
 
-## [0.0.8] - 2026-06-17
+## Unreleased
 
 ### Added
 
-- **Floating Kitten Animation** 🐱
-  - Cute bongo cat that responds to keyboard input with smooth FSM-based animations
-  - Shows different paw positions based on which hand typed (left/right/both)
-  - Sleeping frame when hovering with mouse
-  - Floating window positioned above all VS Code tabs and status bar
-  - Configurable via `byteBitTool.kittenEnabled` setting
-  - Keyboard detection supports both English and Russian layouts
+- Boolean and comparison expressions in Number mode
+- Exact arbitrary-precision integer calculations and int64/uint64 type checks
+- Up to 50 comma-separated expressions in a single Number input
+- Six-color, edit-aware text highlighting for editor selections and words
+- Commands to clear selected or all text highlights in the active file
 
 ### Changed
 
-- **Global Keyboard Tracking** - Kitten now responds to typing anywhere in VS Code (not just BBT panel)
-- **FSM-based Animation** - Finite State Machine ensures smooth, predictable animations without glitches
-- **Performance Optimizations** - SVG frames pre-loaded once, not rebuilt on every keystroke
-
-### Technical Details
-
-- New module: `src/webview/kitten/logic.ts` - FSM-based animation controller
-- New styles: `kittenStyles` in `src/webview/styles.ts` for floating window
-- Extension now broadcasts keystroke events to all active webviews
-- Active key tracking with `Set` for O(1) lookup performance
-- Frame duration: 80ms for snappy response
+- Bit and endianness visualizations now support values up to 256 bits
+- Comparison operators no longer conflict with shift-operator auto-completion
+- Number and ASCII results now use the same responsive card layout
+- History entries use larger text, mode badges, and readable wrapping for long values
 
 ## [0.0.7] - 2026-06-14
 
@@ -103,7 +94,7 @@
 
 - **Floating point number support** - Now you can evaluate expressions with decimal numbers (e.g., `5.5 + 3.2`, `10 / 3`, `0xFF + 0.5`)
 - Automatic detection of integer vs floating point results
-- Clear visual indication when HEX/BIN conversions are not available for float results (`— (float only)`)
+- Clear visual indication when HEX/BIN conversions are not available for float results (`- (float only)`)
 - Informational message for float results explaining that HEX/BIN views only apply to integers
 
 ### Changed

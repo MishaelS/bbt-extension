@@ -1,4 +1,6 @@
 import * as assert from 'assert';
+import { JSDOM } from 'jsdom';
+import { getMarkup } from '../../webview/html';
 import { getNumberLogic } from '../../webview/number/logic';
 
 // Mock browser environment for webview functions without JSDOM
@@ -39,6 +41,8 @@ function setupMockEnvironment()
 
 describe('Number Mode Tests', () => {
     let safeEval: Function;
+    let safeEvalMany: Function;
+    let formatNumberResult: Function;
 
     before(async () => {
         setupMockEnvironment();
@@ -47,15 +51,20 @@ describe('Number Mode Tests', () => {
         const logicCode = getNumberLogic();
 
         // Create a function that extracts safeEval
-        const fn = new Function(logicCode + '; return { safeEval, INT_TYPES };');
+        const fn = new Function(logicCode + '; return { safeEval, safeEvalMany, formatNumberResult, INT_TYPES };');
         const exported = fn();
         safeEval = exported.safeEval;
+        safeEvalMany = exported.safeEvalMany;
+        formatNumberResult = exported.formatNumberResult;
     });
 
     describe('safeEval()', () => {
         it('should evaluate integer addition', () => {
             const result = safeEval('5 + 3');
             assert.strictEqual(result, 8);
+            assert.strictEqual(safeEval('+5'), 5);
+            assert.strictEqual(safeEval('(+5) + 3'), 8);
+            assert.strictEqual(safeEval('0008 + 1'), 9);
         });
 
         it('should evaluate floating point addition', () => {
@@ -100,6 +109,7 @@ describe('Number Mode Tests', () => {
 
         it('should throw error on invalid characters', () => {
             assert.throws(() => safeEval('5 + "string"'), /Invalid characters/);
+            assert.throws(() => safeEval('true.constructor'), /Invalid characters/);
         });
 
         it('should handle bitwise operations', () => {
@@ -110,6 +120,7 @@ describe('Number Mode Tests', () => {
         it('should handle shift operations', () => {
             const result = safeEval('0b1010 << 2');
             assert.strictEqual(result, 40);
+            assert.strictEqual(safeEval('8 >>> 1'), 4);
         });
 
         it('should parse short hex literals', () => {
@@ -139,6 +150,36 @@ describe('Number Mode Tests', () => {
         it('should parse short hex with spaces', () => {
             const result = safeEval('x F F');
             assert.strictEqual(result, 255);
+        });
+
+        it('should evaluate comparison expressions as booleans', () => {
+            assert.strictEqual(safeEval('0xFF > 128'), true);
+            assert.strictEqual(safeEval('5 <= 3'), false);
+            assert.strictEqual(safeEval('5 == 5 && 2 != 3'), true);
+        });
+
+        it('should evaluate boolean literals and logical operators', () => {
+            assert.strictEqual(safeEval('true && !false'), true);
+            assert.strictEqual(safeEval('0 || 5'), true);
+        });
+
+        it('should preserve integers beyond Number.MAX_SAFE_INTEGER', () => {
+            const result = safeEval('9007199254740993 + 10');
+            assert.strictEqual(result, 9007199254741003n);
+            assert.strictEqual(formatNumberResult(result, 16), '0x2000000000000B');
+            assert.strictEqual(formatNumberResult(result, 2), '0b100000000000000000000000000000000000000000000000001011');
+        });
+
+        it('should evaluate comma-separated expressions independently', () => {
+            assert.deepStrictEqual(
+                safeEvalMany('1 + 2, 0x10, 5 > 3'),
+                [3, 16, true]
+            );
+        });
+
+        it('should reject empty and nested comma expressions', () => {
+            assert.throws(() => safeEvalMany('1,,2'), /Empty expression/);
+            assert.throws(() => safeEvalMany('(1, 2)'), /only allowed between expressions/);
         });
     });
 
@@ -180,8 +221,50 @@ describe('Number Conversion Logic', () => {
     it('should not show hex for floats', () => {
         const value = 3.14;
         const isInteger = Math.floor(value) === value;
-        const hex = isInteger ? '0x' + value.toString(16) : '— (float only)';
-        assert.strictEqual(hex, '— (float only)');
+        const hex = isInteger ? '0x' + value.toString(16) : '- (float only)';
+        assert.strictEqual(hex, '- (float only)');
+    });
+});
+
+describe('Number Mode Rendering', () => {
+    let document: Document;
+    let convertNumber: Function;
+
+    beforeEach(() => {
+        const dom = new JSDOM('<!DOCTYPE html><body>' + getMarkup() + '</body>');
+        document = dom.window.document;
+        const fn = new Function(
+            'document',
+            getNumberLogic() + '; return { convertNumber };'
+        );
+        convertNumber = fn(document).convertNumber;
+    });
+
+    function render(input: string): void {
+        (document.getElementById('numInput') as HTMLInputElement).value = input;
+        convertNumber(false);
+    }
+
+    it('should render boolean results without numeric conversions', () => {
+        render('0xFF > 128 && true');
+        assert.strictEqual(document.getElementById('decLabel')?.textContent, 'BOOL');
+        assert.strictEqual(document.getElementById('decVal')?.textContent, 'true');
+        assert.strictEqual(document.getElementById('hexVal')?.textContent, '- (boolean)');
+        assert.strictEqual(document.getElementById('binVal')?.textContent, '- (boolean)');
+    });
+
+    it('should render multiple comma-separated results in every base', () => {
+        render('1 + 2, 0x10, 5 > 3');
+        assert.strictEqual(document.getElementById('decLabel')?.textContent, 'RESULT');
+        assert.strictEqual(document.getElementById('decVal')?.textContent, '3, 16, true');
+        assert.strictEqual(document.getElementById('hexVal')?.textContent, '0x3, 0x10, - (boolean)');
+        assert.strictEqual(document.getElementById('binVal')?.textContent, '0b11, 0b10000, - (boolean)');
+    });
+
+    it('should render a large integer without precision loss', () => {
+        render('9007199254740993 + 10');
+        assert.strictEqual(document.getElementById('decVal')?.textContent, '9007199254741003');
+        assert.strictEqual(document.getElementById('hexVal')?.textContent, '0x2000000000000B');
     });
 });
 

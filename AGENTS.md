@@ -16,6 +16,8 @@ VS Code extension for developers, reverse engineers, and security researchers. P
 |--------------------------------|----------------------------------------------------------------|
 | `src/extension.ts`             | Entry point, registers commands and providers                  |
 | `src/hover.ts`                 | Hover provider for numeric literals                            |
+| `src/highlight/manager.ts`     | Session-scoped colored editor text decorations                 |
+| `src/highlight/rangeTracker.ts`| Pure offset tracking for highlights across document edits      |
 | `src/webview/index.ts`         | Assembles HTML/CSS/JS for the panel                            |
 | `src/webview/number/logic.ts`  | Number mode: safeEval, convertNumber, render functions         |
 | `src/webview/ascii/logic.ts`   | ASCII mode: detection, encoding/decoding                       |
@@ -24,26 +26,26 @@ VS Code extension for developers, reverse engineers, and security researchers. P
 | `src/webview/shared/logic.ts`  | History, mode switching, copy utilities                        |
 | `src/webview/styles.ts`        | All CSS styles including help modal and diff viewer            |
 | `src/webview/html.ts`          | Static HTML markup with mode containers                        |
-| `src/webview/kitten/logic.ts`  | Kitten animation: FSM-based keyboard response, floating window |
 
 ## Architecture
 
 Extension Host (VS Code)
 ├── Hover Provider (hover.ts)            -> Shows tooltips on numbers
+├── Text Highlights (highlight/)         -> Colors selected editor ranges
 └── Webview Panel
     ├── Number Mode (number/logic.ts)    -> safeEval, conversions
     ├── ASCII Mode (ascii/logic.ts)      -> text <-> codes
     ├── Binary Diff Mode (diff/logic.ts) -> compare hex dumps
     ├── Help Module (help/logic.ts)      -> interactive documentation
-    ├── Kitten Module (kitten/logic.ts)  -> floating animation
     └── Shared (shared/logic.ts)         -> history, mode switcher
 
 ## Important Implementation Details
 
 ### Number Mode (`number/logic.ts`)
 
-- **`safeEval(expr)`**: Converts 0x/0b literals -> decimal, validates with regex, executes via `new Function()`, returns float
-- **`handleNumberInputKeydown(event)`**: Auto-completes parentheses `()`, shift operators `<<` and `>>`
+- **`safeEval(expr)`**: Evaluates a single validated arithmetic, bitwise, comparison, or boolean expression; exact integers use `BigInt`
+- **`safeEvalMany(expr)`**: Evaluates up to 50 independent top-level comma-separated expressions
+- **`handleNumberInputKeydown(event)`**: Auto-completes parentheses `()` without interfering with comparison operators
 - **`convertNumber()`**: Checks integer vs float, shows full UI for integers, DEC-only for floats
 - **`renderTypes()`, `renderBitGrid()`, `renderEndian()`**: Only called for integers
 
@@ -59,7 +61,7 @@ Extension Host (VS Code)
 - **`addBinaryRow(name, hexString)`**: Creates new row with parsed bytes
 - **`compareColumns()`**: Calculates per-column diff status (match/diff)
 - **`renderBinaryTable()`**: Renders interactive comparison table
-- **`toggleByteMark(id, col)`**: Cycles through mark colors (blue → violet → cyan → none)
+- **`toggleByteMark(id, col)`**: Cycles through mark colors (blue -> violet -> cyan -> none)
 - **`handleBinaryKeyboard(event)`**: Keyboard shortcuts (Delete, Ctrl+Delete, Ctrl+Up/Down)
 - **Visual indicators**: Green (match), Red (diff), Yellow (missing), Blue/Purple/Cyan (manual marks)
 - **Multi-select**: Ctrl+Click to select multiple rows
@@ -72,22 +74,19 @@ Extension Host (VS Code)
 - **`updateHelpContent(mode)`**: Dynamically generates help content
 - Context-aware help (shows current mode by default)
 
-### Kitten Module (`kitten/logic.ts`) - NEW in v0.0.8
-
-- **FSM-based animation**: Finite State Machine for smooth, predictable paw animations
-- **`detectHand(key)`**: Identifies left/right hand based on key (supports EN/RU layouts)
-- **`enterState(next)`**: Transitions between IDLE, LEFT_HIT, RIGHT_HIT, BOTH_HIT states
-- **`handleHand(hand)`**: Main keystroke handler for kitten animation
-- **Floating window**: Positioned above all VS Code tabs and status bar
-- **Configurable**: `byteBitTool.kittenEnabled` setting to enable/disable
-- **Responsive**: 80ms frame duration for snappy response
-- **Keyboard detection**: Tracks active keys using Set for O(1) performance
-
 ### Hover Provider (`hover.ts`)
 
 - Regex: `/0x[0-9a-fA-F]+|x[0-9a-fA-F]+|0b[01]+|b[01]+|-?\d+(?:\.\d+)?/`
 - Supports short form literals (`xFF`, `b1010`)
 - Shows HEX/BIN only for integers, shows "N/A (float)" otherwise
+
+### Text Highlights (`highlight/`)
+
+- Six foreground/background color variants with overview-ruler markers
+- Supports multiple selections and the word under the cursor
+- Recoloring replaces overlapping colors without losing adjacent highlights
+- Offset ranges track insertions, deletions, replacements, and multi-cursor edits
+- Highlights are intentionally session-scoped to avoid stale ranges after external file changes
 
 ## Development Commands
 
@@ -105,7 +104,7 @@ F5                   # Launch extension in debug window
 
 ## Key Constraints
 - **HEX/BIN only for integers** - Floating point numbers cannot be represented in these bases
-- **safeEval security** - Only allows digits, operators, parentheses, and dot for floats
+- **safeEval security** - Only numeric/boolean literals and explicitly supported operators pass validation
 - **Webview isolation** - All UI runs in isolated webview, communicates via postMessage
 
 ## Build & Package
@@ -115,7 +114,6 @@ npm run publish      # Publish to marketplace (requires auth)
 ```
 
 ## Version History
-- **0.0.8**: Floating kitten animation with FSM, global keyboard tracking
 - **0.0.7**: Binary Diff mode, Interactive Help, Auto-completion
 - **0.0.6**: Short form literals (xFF, b1010), persistent history, auto-focus
 - **0.0.5**: Floating point support, fixed webview issues
@@ -126,4 +124,3 @@ npm run publish      # Publish to marketplace (requires auth)
 |          Setting          | Default |                       Description                       |
 |---------------------------|---------|---------------------------------------------------------|
 | byteBitTool.autoSave      | false   | Auto-save calculations to history                       |
-| byteBitTool.kittenEnabled | true    | Enable kitten animation that responds to keyboard input |

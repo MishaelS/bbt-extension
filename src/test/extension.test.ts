@@ -4,15 +4,24 @@ import * as vscode from 'vscode';
 suite('Extension Test Suite', () => {
     vscode.window.showInformationMessage('Starting tests...');
 
+    suiteSetup(async () => {
+        const extension = vscode.extensions.getExtension('mishaels.byte-bit-tool');
+        assert.ok(extension);
+        await extension.activate();
+    });
+
     test('Extension should be activated', () => {
         const extension = vscode.extensions.getExtension('mishaels.byte-bit-tool');
         assert.ok(extension);
         assert.strictEqual(extension?.isActive, true);
     });
 
-    test('Command should be registered', async () => {
+    test('Commands should be registered', async () => {
         const commands = await vscode.commands.getCommands();
         assert.ok(commands.includes('byte-bit-tool.open'));
+        assert.ok(commands.includes('byte-bit-tool.highlightText'));
+        assert.ok(commands.includes('byte-bit-tool.clearTextHighlight'));
+        assert.ok(commands.includes('byte-bit-tool.clearAllTextHighlights'));
     });
 
     test('Hover provider should work with float numbers', async () => {

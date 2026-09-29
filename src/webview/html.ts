@@ -1,7 +1,7 @@
 /**
  * html.ts
  * Static HTML markup for the BBT webview panel.
- * No logic, no styles — only structure.
+ * No logic, no styles - only structure.
  */
 export function getMarkup(): string {
     return `
@@ -23,7 +23,7 @@ export function getMarkup(): string {
                 <input
                     type="text"
                     id="numInput"
-                    placeholder="Enter a number or expression"
+                    placeholder="Expression(s), separated by commas"
                     oninput="convertNumber()"
                     onkeydown="handleNumberInputKeydown(event); if(event.key==='Enter'){saveCurrentToHistory();}"
                     autofocus
@@ -69,19 +69,23 @@ export function getMarkup(): string {
         <div id="numberResults">
             <div class="results">
                 <div class="result-card">
-                    <span class="result-label dec">DEC</span>
-                    <span class="result-value" id="decVal">—</span>
+                    <span class="result-label dec" id="decLabel">DEC</span>
+                    <div class="result-content">
+                        <div class="result-value" id="decVal">-</div>
+                    </div>
                     <button class="copy-btn" onclick="copyVal('decVal', this)">Copy</button>
                 </div>
                 <div class="result-card">
                     <span class="result-label hex">HEX</span>
-                    <span class="result-value" id="hexVal">—</span>
+                    <div class="result-content">
+                        <div class="result-value" id="hexVal">-</div>
+                    </div>
                     <button class="copy-btn" onclick="copyVal('hexVal', this)">Copy</button>
                 </div>
                 <div class="result-card">
                     <span class="result-label bin">BIN</span>
-                    <div style="flex:1">
-                        <span class="result-value" id="binVal">—</span>
+                    <div class="result-content">
+                        <div class="result-value" id="binVal">-</div>
                         <div class="bin-groups" id="binGroups"></div>
                     </div>
                     <button class="copy-btn" onclick="copyVal('binVal', this)">Copy</button>
@@ -109,24 +113,24 @@ export function getMarkup(): string {
             <div class="results">
                 <div class="result-card">
                     <span class="result-label ascii">TEXT</span>
-                    <div style="flex:1">
-                        <div style="font-size:10px;opacity:0.5;margin-bottom:4px" id="asciiDirection"></div>
-                        <div class="result-value ascii-preview" id="asciiTextVal">—</div>
+                    <div class="result-content">
+                        <div class="result-meta" id="asciiDirection"></div>
+                        <div class="result-value ascii-preview" id="asciiTextVal">-</div>
                     </div>
                     <button class="copy-btn" onclick="copyVal('asciiTextVal', this)">Copy</button>
                 </div>
                 <div class="result-card">
                     <span class="result-label hex">HEX</span>
-                    <div style="flex:1">
-                        <div class="result-value" id="asciiHexVal" style="font-size:11px;word-break:break-all">—</div>
+                    <div class="result-content">
+                        <div class="result-value" id="asciiHexVal">-</div>
                         <div id="asciiHexChars"></div>
                     </div>
                     <button class="copy-btn" onclick="copyVal('asciiHexVal', this)">Copy</button>
                 </div>
                 <div class="result-card">
                     <span class="result-label dec">DEC</span>
-                    <div style="flex:1">
-                        <div class="result-value" id="asciiDecVal" style="font-size:11px;word-break:break-all">—</div>
+                    <div class="result-content">
+                        <div class="result-value" id="asciiDecVal">-</div>
                         <div id="asciiDecChars"></div>
                     </div>
                     <button class="copy-btn" onclick="copyVal('asciiDecVal', this)">Copy</button>
@@ -135,7 +139,7 @@ export function getMarkup(): string {
 
             <div class="section" id="sectionAsciiInfo" style="display:none">
                 <div class="section-title">ASCII info</div>
-                <div style="display:flex;gap:16px;font-size:10px;opacity:0.6">
+                <div class="ascii-info-list">
                     <span>click char to copy</span>
                     <span>[space] = space</span>
                     <span>● = non-printable</span>

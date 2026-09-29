@@ -9,10 +9,10 @@ import * as vscode from 'vscode';
 
 /* Colour palette (One Dark) */
 const C = {
-    label : '#E5C07B',  // yellow  — DEC / HEX / BIN labels
-    prefix: '#E06C75',  // red     — 0x / 0b
-    number: '#C678DD',  // purple  — digits
-    dim   : '#636D83',  // grey    — separators, metadata
+    label : '#E5C07B',  // yellow  - DEC / HEX / BIN labels
+    prefix: '#E06C75',  // red     - 0x / 0b
+    number: '#C678DD',  // purple  - digits
+    dim   : '#636D83',  // grey    - separators, metadata
 };
 
 /* Types */
@@ -164,7 +164,7 @@ function buildHoverContent(
 export function createHoverProvider(): vscode.Disposable
 {
     return vscode.languages.registerHoverProvider(
-        { scheme: 'file' },
+        [{ scheme: 'file' }, { scheme: 'untitled' }],
         {
             provideHover(document, position) {
                 const range = document.getWordRangeAtPosition(

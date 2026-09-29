@@ -19,8 +19,6 @@ const baseStyles = `
 
     @media (max-width: 400px) {
         body { padding: 12px; }
-        .result-card { padding: 12px; gap: 8px; }
-        .result-value { font-size: 13px; }
     }
 
     h1 {
@@ -144,9 +142,8 @@ const asciiStyles = `
     }
 
     .ascii-preview {
-        font-family: monospace;
-        font-size: 13px;
-        word-break: break-all;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
     }
 
     .ascii-conversion-row {
@@ -167,6 +164,15 @@ const asciiStyles = `
     .ascii-arrow {
         color: #569cd6;
         font-size: 12px;
+    }
+
+    .ascii-info-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        color: var(--vscode-descriptionForeground, #a0a0a0);
+        font-size: 11px;
+        line-height: 1.4;
     }
 `;
 
@@ -209,17 +215,23 @@ const resultStyles = `
     .results {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
     }
 
     .result-card {
         background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
         border: 1px solid var(--vscode-panel-border, #3c3c3c);
-        border-radius: 5px;
-        padding: 10px 12px;
+        border-radius: 7px;
+        padding: 12px 14px;
+        min-height: 56px;
         display: flex;
         align-items: flex-start;
         gap: 12px;
+        transition: border-color 0.15s, background 0.15s;
+    }
+
+    .result-card:hover {
+        border-color: var(--vscode-focusBorder, #007acc);
     }
 
     .result-label {
@@ -227,9 +239,9 @@ const resultStyles = `
         font-weight: 700;
         letter-spacing: 1px;
         text-transform: uppercase;
-        min-width: 35px;
-        padding-top: 2px;
-        opacity: 0.6;
+        flex: 0 0 44px;
+        padding-top: 3px;
+        opacity: 0.75;
     }
 
     .result-label.dec   { color: #4ec9b0; }
@@ -237,12 +249,26 @@ const resultStyles = `
     .result-label.bin   { color: #ce9178; }
     .result-label.ascii { color: #dcdcaa; }
 
+    .result-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .result-meta {
+        min-height: 14px;
+        margin-bottom: 3px;
+        color: var(--vscode-descriptionForeground, #a0a0a0);
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
     .result-value {
         font-family: var(--vscode-editor-font-family, 'Courier New', monospace);
-        font-size: 13px;
-        word-break: break-all;
-        flex: 1;
-        line-height: 1.4;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        min-width: 0;
+        line-height: 1.5;
     }
 
     .copy-btn {
@@ -250,8 +276,8 @@ const resultStyles = `
         border: 1px solid var(--vscode-button-secondaryBackground, #555);
         color: var(--vscode-button-secondaryForeground, #ccc);
         border-radius: 3px;
-        padding: 3px 8px;
-        font-size: 10px;
+        padding: 4px 9px;
+        font-size: 11px;
         cursor: pointer;
         white-space: nowrap;
         transition: background 0.15s;
@@ -280,6 +306,25 @@ const resultStyles = `
         font-size: 11px;
         letter-spacing: 1px;
         border: 1px solid var(--vscode-panel-border, #3c3c3c);
+    }
+
+    @media (max-width: 400px) {
+        .result-card {
+            gap: 8px;
+            padding: 10px;
+        }
+
+        .result-label {
+            flex-basis: 38px;
+        }
+
+        .result-value {
+            font-size: 13px;
+        }
+
+        .copy-btn {
+            padding-inline: 7px;
+        }
     }
 `;
 
@@ -394,6 +439,12 @@ const bitGridStyles = `
         width: 6px;
         background: transparent;
         border: none;
+    }
+
+    .detail-limit {
+        color: var(--vscode-descriptionForeground, #a0a0a0);
+        font-size: 11px;
+        line-height: 1.4;
     }
 `;
 
@@ -859,143 +910,113 @@ const helpStyles = `
     }
 `;
 
-/* Kitten floating window */
-const kittenStyles = `
-    .kitten-floating {
-        position: fixed;
-        bottom: -18px;
-        right: 16px;
-        z-index: 999999;
-        cursor: pointer;
-        user-select: none;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
-        transition: transform 0.1s ease;
-    }
-
-    .kitten-floating:hover {
-        transform: scale(1.02);
-    }
-
-    .kitten-floating:active {
-        transform: scale(0.98);
-    }
-
-    .kitten-image {
-        width: 120px;
-        height: 120px;
-        image-rendering: crisp-edges;
-        image-rendering: pixelated;
-        border-radius: 0;
-        background: transparent;
-        border: none;
-        padding: 0;
-        transition: opacity 0.15s ease;
-    }
-
-    .kitten-meow {
-        position: absolute;
-        top: -20px;
-        right: 0;
-        font-size: 10px;
-        background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
-        padding: 2px 6px;
-        border-radius: 12px;
-        border: 1px solid var(--vscode-panel-border, #3c3c3c);
-        color: var(--vscode-terminal-ansiGreen, #4ec9b0);
-        animation: kittenMeowFade 0.5s ease-out;
-        pointer-events: none;
-        white-space: nowrap;
-    }
-
-    @keyframes kittenMeowFade {
-        0% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        100% {
-            opacity: 0;
-            transform: translateY(-15px);
-        }
-    }
-
-    @media (max-width: 400px) {
-        .kitten-floating {
-            bottom: 2px;
-            right: 8px;
-        }
-
-        .kitten-image {
-            width: 90px;
-            height: 90px;
-        }
-    }
-`;
-
 /* History */
 const historyStyles = `
+    #historySection .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        letter-spacing: 1.2px;
+        opacity: 0.8;
+    }
+
     .history-list {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        max-height: 160px;
+        gap: 8px;
+        max-height: 260px;
         overflow-y: auto;
+        padding-right: 2px;
     }
 
     .history-item {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 5px 10px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 10px 12px;
         background: var(--vscode-editor-inactiveSelectionBackground, #2a2d2e);
         border: 1px solid var(--vscode-panel-border, #3c3c3c);
-        border-radius: 4px;
+        border-radius: 7px;
         cursor: pointer;
         font-family: var(--vscode-editor-font-family, monospace);
-        font-size: 11px;
-        transition: background 0.15s;
+        font-size: 13px;
+        line-height: 1.45;
+        transition: border-color 0.15s, background 0.15s;
     }
 
     .history-item:hover {
         background: var(--vscode-list-hoverBackground, #3c3c3c);
+        border-color: var(--vscode-focusBorder, #007acc);
+    }
+
+    .history-expression-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .history-mode {
+        flex: 0 0 auto;
+        margin-top: 1px;
+        border: 1px solid currentColor;
+        border-radius: 3px;
+        padding: 1px 5px;
+        font-family: var(--vscode-font-family);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        line-height: 1.35;
+        opacity: 0.8;
+    }
+
+    .history-mode.number {
+        color: #4ec9b0;
+    }
+
+    .history-mode.ascii {
+        color: #dcdcaa;
     }
 
     .history-expr {
         flex: 1;
-        opacity: 0.7;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        min-width: 0;
+        color: var(--vscode-editor-foreground);
+        overflow-wrap: anywhere;
+        white-space: normal;
     }
 
     .history-result {
         color: #4ec9b0;
-        white-space: nowrap;
+        padding-left: 33px;
+        font-size: 13px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+        white-space: normal;
     }
 
     .history-empty {
-        font-size: 11px;
-        opacity: 0.35;
+        font-size: 13px;
+        opacity: 0.5;
         text-align: center;
-        padding: 8px 0;
+        padding: 14px 0;
     }
 
     .history-clear {
-        font-size: 10px;
+        font-size: 11px;
         background: transparent;
         border: none;
         color: var(--vscode-button-secondaryForeground, #ccc);
         cursor: pointer;
-        opacity: 0.4;
-        padding: 0;
-        float: right;
+        opacity: 0.65;
+        padding: 2px 4px;
     }
 
     .history-clear:hover {
-        opacity: 0.8;
+        opacity: 1;
     }
 
     /* Float info message */
@@ -1029,7 +1050,6 @@ export function getAllStyles(): string {
         endianStyles,
         binaryDiffStyles,
         helpStyles,
-        kittenStyles,
         historyStyles,
     ].join('\n');
 }

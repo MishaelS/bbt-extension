@@ -1,6 +1,7 @@
 # Sources (not needed in the finished extension)
 src/**
 .vscode-test/**
+test-workspace/**
 
 # Configs
 .git/

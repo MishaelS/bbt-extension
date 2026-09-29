@@ -41,11 +41,6 @@
         "type": "boolean",
         "default": false,
         "description": "Automatically save calculations to history while typing. When disabled, press Enter to save."
-      },
-      "byteBitTool.kittenEnabled": {
-        "type": "boolean",
-        "default": true,
-        "description": "Enable kitten animation that responds to keyboard input"
       }
     }
   },
@@ -58,10 +53,22 @@
         "icon": "$(symbol-number)"
       },
       {
-        "command": "byte-bit-tool.showKitten",
-        "title": "Show/Hide Kitten",
+        "command": "byte-bit-tool.highlightText",
+        "title": "Highlight Selected Text",
         "category": "Byte Bit Tool",
-        "icon": "$(panda)"
+        "icon": "$(symbol-color)"
+      },
+      {
+        "command": "byte-bit-tool.clearTextHighlight",
+        "title": "Clear Highlight from Selected Text",
+        "category": "Byte Bit Tool",
+        "icon": "$(close)"
+      },
+      {
+        "command": "byte-bit-tool.clearAllTextHighlights",
+        "title": "Clear All Text Highlights in File",
+        "category": "Byte Bit Tool",
+        "icon": "$(clear-all)"
       }
     ],
     "viewsContainers": {
@@ -85,6 +92,35 @@
       "commandPalette": [
         {
           "command": "byte-bit-tool.open"
+        },
+        {
+          "command": "byte-bit-tool.highlightText",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "byte-bit-tool.clearTextHighlight",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "byte-bit-tool.clearAllTextHighlights",
+          "when": "editorTextFocus"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "byte-bit-tool.highlightText",
+          "when": "editorTextFocus",
+          "group": "byteBitTool@1"
+        },
+        {
+          "command": "byte-bit-tool.clearTextHighlight",
+          "when": "editorTextFocus",
+          "group": "byteBitTool@2"
+        },
+        {
+          "command": "byte-bit-tool.clearAllTextHighlights",
+          "when": "editorTextFocus",
+          "group": "byteBitTool@3"
         }
       ],
       "view/title": [
@@ -129,7 +165,7 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^18.19.130",
     "@types/vscode": "^1.80.0",
-    "@vscode/test-electron": "^3.0.0",
+    "@vscode/test-electron": "^3.1.0",
     "chai": "^4.3.10",
     "eslint": "^10.2.0",
     "jsdom": "^24.0.0",

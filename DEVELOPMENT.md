@@ -8,6 +8,9 @@ bbt-extension/
 ├── src/
 │   ├── extension.ts                   # Extension entry point
 │   ├── hover.ts                       # Hover provider
+│   ├── highlight/
+│   │   ├── manager.ts                 # Editor decoration commands and lifecycle
+│   │   └── rangeTracker.ts            # Pure edit-aware offset transformations
 │   ├── webview/
 │   │   ├── index.ts                   # HTML document assembler
 │   │   ├── html.ts                    # Static HTML markup
@@ -20,10 +23,8 @@ bbt-extension/
 │   │   │   └── logic.ts               # ASCII mode JS
 │   │   ├── diff/
 │   │   │   └── logic.ts               # Binary Diff mode JS
-│   │   ├── help/
-│   │   │   └── logic.ts               # Help modal JS
-│   │   └── kitten/
-│   │       └── logic.ts               # Kitten animation JS
+│   │   └── help/
+│   │       └── logic.ts               # Help modal JS
 │   └── test/
 │       ├── suite/
 │       │   ├── index.ts               # ...
@@ -35,14 +36,7 @@ bbt-extension/
 │       └── runTest.ts                 # Running tests
 ├── resources/
 │   ├── icon.png                       # Extension icon
-│   ├── icon.svg                       # Extension icon
-│   └── kitten/                        # Cat frames, there is an idea to add different skins
-│       └── frame_original_cat/        # Standard skin without items
-│           ├── bongo_both_down.svg    # Frame two paws on a table
-│           ├── bongo_both_up.svg      # Frame two paws raised
-│           ├── bongo_left_down.svg    # Frame the left foot is raised
-│           ├── bongo_right_down.svg   # Frame the right foot is raised
-│           └── bongo_sleeping.svg     # Frame paws on the table and eyes closed
+│   └── icon.svg                       # Extension icon
 ├── screenshots/
 │   ├── screenshots/ascii-mode-1.png
 │   ├── screenshots/ascii-mode-2.png
@@ -97,7 +91,7 @@ Registers three main components:
 
 #### `shared/logic.ts` - history management, mode switching, copy utilities, HTML escaping
 
-#### `number/logic.ts` - safeEval expression evaluator, integer type grid, bit visualizer, endianness display
+#### `number/logic.ts` - validated expression evaluator with exact `BigInt` integers, boolean expressions, comma-separated inputs, integer type grid, bit visualizer, and endianness display
 
 #### `ascii/logic.ts` - hex/dec code detection, text encoding/decoding, character card rendering
 
@@ -106,7 +100,7 @@ Registers three main components:
 - **addBinaryRow()** - creating a new string with bytes
 - **compareColumns()** - calculation of the status of each column (match/diff)
 - **renderBinaryTable()** - illuminated comparison table render
-- **toggleByteMark()** - cycle of color labels (blue → violet → cyan → none)
+- **toggleByteMark()** - cycle of color labels (blue -> violet -> cyan -> none)
 - **handleBinaryKeyboard()** - keyboard shortcuts (Delete, Ctrl+Delete, Ctrl+Up/Down)
 - Export/import to JSON
 
@@ -115,103 +109,6 @@ Registers three main components:
 - **switchHelpTab()** - switch between tabs `Number/ASCII/Binary Diff`
 - **updateHelpContent()** - generation of contextual help
 - Closing by Escape or clicking outside the window
-
-#### `kitten/logic.ts` - Kitten Animation Module (v0.0.8+)
-
-- **FSM-based animation controller** — Finite State Machine with states: IDLE, LEFT_HIT, RIGHT_HIT, BOTH_HIT
-- **`detectHand(key)`** — identifies left/right hand based on key press (supports EN/RU layouts)
-- **`handleHand(hand)`** — main keystroke handler, tracks active keys via Set
-- **`enterState(next)`** — state transition with auto-return to IDLE after 80ms
-- **Floating window** — positioned above all VS Code tabs and status bar
-- **Keyboard detection** — uses `Set` for O(1) lookup performance
-- **Configurable** — `byteBitTool.kittenEnabled` setting
-- **Frame pre-loading** — SVG paths built once on init, not rebuilt on every keystroke
-- **Hover state** — shows sleeping frame on mouse hover
-- **Click handler** — displays "meow!" bubble on click
-- **Global keyboard tracking** — responds to typing anywhere in VS Code via `onDidChangeTextDocument` broadcast
-
-### FSM States
-
-|    State    |        Description       |          Frame         |
-|-------------|--------------------------|------------------------|
-| `IDLE`      | Waiting for input        | `bongo_both_up.svg`    |
-| `LEFT_HIT`  | Left hand typing         | `bongo_right_down.svg` |
-| `RIGHT_HIT` | Right hand typing        | `bongo_left_down.svg`  |
-| `BOTH_HIT`  | Two or more keys pressed | `bongo_both_down.svg`  |
-| `SLEEPING`  | Mouse hover state        | `bongo_sleeping.svg`   |
-
-### Keyboard Detection Sets
-
-```javascript
-const LEFT_KEYS = new Set([
-    '1','2','3','4','5',
-    'q','w','e','r','t','a','s','d','f','g','z','x','c','v','b',
-    'й','ц','у','к','е','ф','ы','в','а','п','я','ч','с','м','и',
-    ' ','tab','shift','control','alt','meta'
-]);
-
-const RIGHT_KEYS = new Set([
-    '6','7','8','9','0','-','=',
-    'y','u','i','o','p','[',']','h','j','k','l','n','m',
-    'н','г','ш','щ','з','х','ъ','р','о','л','д','ж','э','т','ь','б','ю','.',
-    'enter','backspace','delete'
-]);
-```
-
-### Extension Integration
-
-Kitten receives keystroke events via:
-
-1. Direct keydown/keyup — inside the kitten webview itself (fallback)
-2. Broadcast from extension — broadcastKittenKeystroke() sends events to all active webviews
-3. Text change listener — onDidChangeTextDocument detects typing in any editor
-
-### Frame Duration
-
-- HIT_DURATION = 80ms — snappy response time
-- Returns to IDLE after 80ms if no keys are held
-
-### Performance Optimizations
-
-- SVG paths pre-loaded in _src object — no string concatenation on keystrokes
-- Set for key lookup — O(1) vs Array.indexOf O(n)
-- Single DOM element — minimal reflows
-- requestAnimationFrame not needed — simple setTimeout for FSM
-
-## 3. В конец раздела "Webview Communication" добавить:
-
-### Kitten Broadcast System
-
-The extension broadcasts keystroke events to all active webviews:
-
-```typescript
-// Track all active webviews
-const activeWebviews: Set<vscode.Webview> = new Set();
-
-// Broadcast keystroke to all kitten instances
-function broadcastKittenKeystroke(hand: 'left' | 'right' | 'both'): void {
-   for (const webview of activeWebviews) {
-      webview.postMessage({ type: 'kitten_keystroke', hand });
-   }
-}
-
-// Listen to text changes in any editor
-vscode.workspace.onDidChangeTextDocument(event => {
-   const lastChange = event.contentChanges[event.contentChanges.length - 1];
-   const hand = detectHandServer(lastChange.text);
-   broadcastKittenKeystroke(hand);
-});
-```
-
-### Kitten webview listens for messages:
-
-```typescript
-window.addEventListener('message', function(event) {
-   if (msg.type === 'kitten_keystroke') {
-      handleHand(msg.hand);
-   }
-});
-```
 
 #### `logic.ts` - Client-side JavaScript with these modules:
 
@@ -287,8 +184,8 @@ Regex patterns in `safeEval()`:
 The 'handleNumberInputKeydown()` function in `number/logic.ts' implements:
 
 1. **Brackets** - input `(` automatically creates `()` and puts the cursor inside
-2. **Shifts** - entering `<` creates `<<`, entering `>` creates `>>`, the cursor after the operator
-3. **Skip** - if the cursor is in front of `)` or `>`, the re-entry steps over the character
+2. **Comparisons and shifts** - `<` and `>` remain literal so both comparison (`<=`, `>`) and shift (`<<`, `>>`) operators can be entered
+3. **Skip** - if the cursor is in front of `)`, the re-entry steps over the character
 
 ## Binary Diff Mode
 
